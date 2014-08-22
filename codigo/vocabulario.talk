@@ -1,0 +1,33 @@
+abra o ("firefox","chrome")p => #!stdout: abrindo @p;
+
+(var_name)v; vale 3? => #!talkin: temp = @v;; temp;
+
+temp - temp == 3 => #!stdout: sim!; #!stdout: @temp;;
+
+temp - temp > 3 => #!stdout: nao!; #!stdout: @temp;;
+
+temp - temp < 3 => #!stdout: nao!; #!stdout: @temp;;
+
+ola => #!stdout: Ola usuario!;
+
+Hello World => hw;
+
+hw => #!stdout: Hello World!!!
+
+nome de programa: firefox
+
+abra o (nome de programa)p => #!stdout: opening @p;
+
+("te","tes")p1;("te","ste")p2 => #!stdout: testado!
+
+abra - 3 != 3 => #!stdout: "nao abriu!"
+
+abra - 3 == 3 => #!stdout: "abriu!"
+
+var_name: [a-zA-Z_][a-zA-Z0-9_]*
+
+numero: [0-9][0-9]*
+
+set (var_name)v; = 3 => #!talkin: @v; = 3
+
+seja (var_name)v; = (numero)n; => #!talkin: @v; = @n;
