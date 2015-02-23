@@ -157,6 +157,45 @@ bool cInst::match(string str)
   else return true;
 }
 
+std::string cInst::str()
+{
+  using namespace std;
+  string resp = string("");
+  list<string>::iterator str_it;
+  list<cSignificado>::iterator sig_it;
+  
+  // Adiciona os rotulos na resposta:
+  if(!lRotulos.empty())
+  {
+    for(str_it=lRotulos.begin(); str_it!=lRotulos.end(); str_it++)
+      resp+=(*str_it) + ", ";
+    resp[resp.length()-2] = ':';
+  }
+  
+  // Adiciona o padrao na resposta:
+  resp += padrao.str();
+
+  // Adiciona o contexto na resposta:
+  if(!contexto.empty())
+  {
+    resp += " - ";
+    resp += contexto.str();
+  }
+  
+  if(!lSignificado.empty())
+  {
+    resp += " => ";
+    for(sig_it=lSignificado.begin(); sig_it!=lSignificado.end(); sig_it++)
+      resp += sig_it->str() + ' ';
+
+    // Remove o ultimo espaço:
+    resp.pop_back();
+  }
+  
+  return resp;
+}
+
+
 // TODO: mover essa função para algum lugar adequado.
 // Essa função transforma uma lista de variáveis em uma string.
 string lVar_to_str(pMatch::lVar vars)

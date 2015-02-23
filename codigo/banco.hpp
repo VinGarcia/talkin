@@ -277,6 +277,7 @@
     
 // TODO: remover a lista abaixo, ela não está sendo utilizada.
 //       é preciso remover suas referencias da construtora antes.
+// NOTE: A lista que deveria ser removida é referencia pela função str.
     // Lista de categorizações:
     std::list<std::string> lRotulos;
     
@@ -335,42 +336,7 @@
     
     bool match(std::string texto);
     
-    std::string str()
-    {
-      using namespace std;
-      string resp = string("");
-      list<string>::iterator str_it;
-      list<cSignificado>::iterator sig_it;
-      
-      // Adiciona os rotulos na resposta:
-      if(!lRotulos.empty())
-      {
-        for(str_it=lRotulos.begin(); str_it!=lRotulos.end(); str_it++)
-          resp+=(*str_it) + ", ";
-        resp[resp.length()-2] = ':';
-      }
-      
-      // Adiciona o padrao na resposta:
-      resp += padrao.str();
-      
-      // Adiciona o contexto na resposta:
-      if(!contexto.empty())
-      {
-        resp += " - ";
-        resp += contexto.str();
-      }
-      
-      if(!lSignificado.empty())
-      {
-        resp += " => ";
-        for(sig_it=lSignificado.begin(); sig_it!=lSignificado.end(); sig_it++)
-          resp += sig_it->str() + ' ';
-      }
-      // Remove o ultimo espaço:
-      resp.pop_back();
-      
-      return resp;
-    }
+    std::string str();
   };
 
 // * * * * * Funções de uso das instruções: * * * * *
