@@ -82,7 +82,7 @@ namespace pMatch
   };
   
   // Classe que representa uma variável.
-  // Considerado testado por uso estenso em outros modulos.
+  // Considerado testado por uso extenso em outros modulos.
   class cVar
   {
     public:
@@ -94,9 +94,9 @@ namespace pMatch
     
     public:
     cVar() {}
-    // Considerado testado por uso estenso em outros modulos.
+    // Considerado testado por uso extenso em outros modulos.
     cVar(std::string nome) {this->nome=nome;}
-    // Considerado testado por uso estenso em outros modulos.
+    // Considerado testado por uso extenso em outros modulos.
     cVar(std::string nome, std::list<tInterpretacao>::iterator it)
     { this->nome=nome; lInt.push_back(*it); }
     
@@ -140,7 +140,7 @@ namespace pMatch
   };
   
   // Not going to be tested
-  // Considerado testado por uso estenso em outros modulos.
+  // Considerado testado por uso extenso em outros modulos.
   class matcher
   {
     public:
