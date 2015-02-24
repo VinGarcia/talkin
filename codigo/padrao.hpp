@@ -10,7 +10,7 @@
 
 namespace pMatch
 {
-  // Testado
+  // Tested
   class charClass : public std::string
   {
     public:
@@ -26,7 +26,7 @@ namespace pMatch
   };
   
   // Not going to be tested explicitly
-  // Considerado testado por uso extremo em outros modulos
+  // Considered tested for extensive use on other modules.
   class tWord : public std::string
   {
     int _start;
@@ -43,13 +43,13 @@ namespace pMatch
     tWord(std::string word, int start=0) : std::string(word)
     {
       if(start<0)
-        throw "Parâmetro pos inválido em pMatch::tWord::tWord(string,int)";
+        throw "Invalid parameter `pos` on pMatch::tWord::tWord(string,int)";
       this->_start = start;
       this->_end   = start+this->length();
     }
   };
   
-  // Considerado testado por uso extremo em outros modulos
+  // Considered tested for extensive use on other modules.
   class lWord : public std::list<tWord>
   {
     public:
@@ -69,34 +69,34 @@ namespace pMatch
   
   class cVar;
   
-  // Lista de variáveis:
+  // List of variables:
   typedef std::list<cVar> lVar;
   
-  // Considerado testado por uso extenso em outros modulos.
+  // Considered tested for extensive use on other modules.
   struct tInterpretacao
   {
-    // Cada interpretação contém variáveis locais com seus valores:
+    // Each tInterpretacao contains local variables on its values.
     lVar var;
-    // Cada interpretação contém um intervalo de texto que foi interpretado.
+    // Each tInterpretacao contains a text interval that have been interpretated.
     tWord word;
   };
   
-  // Classe que representa uma variável.
-  // Considerado testado por uso extenso em outros modulos.
+  // Class that represents a variable.
+  // Considered tested for extensive use on other modules.
   class cVar
   {
     public:
-    // Nome da variável:
+    // Variable name:
     std::string nome;
     
-    // Lista de interpretações do texto lido por essa variável:
+    // List of tInterpretacao objects associated with this variable.
     std::list<tInterpretacao> lInt;
     
     public:
     cVar() {}
-    // Considerado testado por uso extenso em outros modulos.
+    // Considered tested for extensive use on other modules.
     cVar(std::string nome) {this->nome=nome;}
-    // Considerado testado por uso extenso em outros modulos.
+    // Considered tested for extensive use on other modules.
     cVar(std::string nome, std::list<tInterpretacao>::iterator it)
     { this->nome=nome; lInt.push_back(*it); }
     
@@ -140,16 +140,18 @@ namespace pMatch
   };
   
   // Not going to be tested
-  // Considerado testado por uso extenso em outros modulos.
+  // Considered tested for extensive use on other modules.
   class matcher
   {
     public:
-    // Variável de escopo:
+
+    // Scope variable,
+    // keeps track of other variables declared inside this matcher pattern.
     cVar var;
     lWord match_word;
     
     public:
-    // Retorna a última string encontrada pelo match();
+    // Returns the last string matched by the match() function.
     lWord getMatch(){return this->match_word;}
     virtual std::string str()=0;
     
@@ -159,7 +161,7 @@ namespace pMatch
     ~matcher(){}
   };
   
-  // Testado
+  // Tested
   class strClass : public std::list<charClass>, public matcher
   {
     public:
@@ -170,19 +172,19 @@ namespace pMatch
     bool match(std::string input, int pos);
     tWord find(std::string input, int pos);
     
-    // A função getClass lê uma string até encontrar um '\0'
-    // ou um '(' que não seja precedido por um '\\'.
-    // Seu comportamento trata o '(' de forma especial.
-    // As demais funções dessa classe são indiferentes ao '('.
+    // The getClass function reads a string until it finds a '\0'
+    // or a '(' not preceded by a '\\'.
+    // strClass::getClass treat '(' as a special character.
+    // The other functions on this class are indiferent to '('.
     static strClass getClass(std::string format, int& pos);
     
     std::string str();
   };
   
-  // Uma classe array contém uma sequencia de strClasse`s e blockClasse`s
-  // match é obtido se o texto der match em todos da sequencia.
-  // onde cada parte do texto deve dar match com um da sequencia.
-  // Testado
+  // An arrayClass contains a sequence of strClass`s and blockClass`s
+  // A match is obtained if the all the items in the sequence match the
+  // given text in the order they are given.
+  // Tested
   class arrayClass : public matcher
   {
     std::list<matcher*> lista;
@@ -198,10 +200,10 @@ namespace pMatch
     arrayClass(std::string str);
     arrayClass(const arrayClass& array){(*this)=array;}
     
-    // Decodifica uma string tranformando-a em um arrayClass.
-    // A string recebida deve estar entre aspas.
-    // pos deve apontar para a abertura da aspas antes da execução.
-    // e apontará para o fechamento das aspas após a execução.
+    // Decode a string into an arrayClass.
+    // The string received must be between quotes.
+    // `pos` must point to the open-quote before execution
+    // and to the close-quote after the execution.
     arrayClass(std::string str, int& pos);
     
     bool match(std::string input, int pos);
@@ -211,26 +213,26 @@ namespace pMatch
     std::string str();
   };
   
-  // Uma classe bloco contém um conjunto de arrayClasse`s e objectClasse`s
-  // match é obtido se o texto der match em ao menos um do conjunto.
-  // Testado
+  // A blockClass contains a set of arrayClass`s and objectClass`s
+  // A match is obtained if any of the items on the set match the whole text.
+  // Tested
   class blockClass : public matcher
   {
     bool repeater=false;
-    // Vetor com os possíveis padrões da classe bloco.
+    // A vector with the set of child matcher objects.
     std::vector<matcher*> lista;
     
-    // Preenche o array 'lista'
+    // Fills the 'lista' array.
     void leLista(std::string str);
     
-    // Verifica a validade do parametro das construtoras:
+    // Validate the parameters of the constructor function.
     void validate(std::string str, int fim);
     
     void build(std::string str, int fim);
     
     std::string block_name;
      
-    // Função recursiva auxiliar da blockClass::match()
+    // Recursive step of the blockClass::match() function.
     std::list<tInterpretacao> sub_match(std::string str, int pos, int rep_pos);
 
     public:
@@ -243,10 +245,9 @@ namespace pMatch
     blockClass(std::string str);
     blockClass(const blockClass& block){(*this)=block;}
     
-    // Essa construtora percorre uma string e extraí dela um blockClass.
-    // Caso não seja possível é lançado um erro.
-    // É preciso que a string comece com um '(' e tenha o formato
-    // definido pelo blockClass em seus primeiros caracteres.
+    // This constructor decode a string into a blockClass object.
+    // An error is thrown if the conversion is not possible.
+    // The string must start with a '(' and end on a ')'.
     blockClass(std::string input, int& pos);
     
     bool match(std::string input, int pos);
@@ -255,7 +256,7 @@ namespace pMatch
     std::string str();
   };
   
-  // Ainda não testado!
+  // Not tested yet!
   class objectClass : public matcher, public std::string
   {
     void validate(std::string);
@@ -270,7 +271,7 @@ namespace pMatch
     objectClass(std::string nome, int& pos);
     
     bool match(std::string, int pos);
-    // TODO: fazer o código do find
+    // TODO: make the code for the find function.
     tWord find(std::string, int pos){ return tWord("",0); }
    
     std::string str(){ return *this; }

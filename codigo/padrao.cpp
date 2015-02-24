@@ -4,7 +4,7 @@
 #include "ambiente.hpp"
 #include "padrao.hpp"
 
-// O banco é acessado somente pela classe objectClass.
+// The instruction database `banco` is acessed only by the class objectClass.
 #include "banco.hpp"
   
   using namespace std;
@@ -12,76 +12,74 @@
 
 /* * * * * START charClass: * * * * */
   
-// Construtora da Classe de caracteres:
+  // Constructor of the charClass class:
   pMatch::charClass::charClass(string format) : string(format)
   {
-    // Length do formato:
     int lenF = format.length();
     
-    /* * * * * * * Inicio dos Testes de Validade * * * * * * */
-    
-    if(lenF==0) throw "String Vazia!";
+    /* * * * * * * Start the validity tests * * * * * * */
+
+    if(lenF==0) throw "Empty String!";
     
     if(lenF==2 && format[0]=='\\')
     {
       (*this)[0] = (*this)[1];
       this->pop_back();
     }
-    // Se o formato não for do tipo simples: "a" ou "b"
+    // If format isn't simple as "a" or "b"
     else if(lenF!=1 && !(lenF==2 && format[0]=='\\'))
-    // Então faça os seguintes testes de coerência:
+    // Then do the following tests:
     {
-      // Caso a classe esteja vazia: "[]"
-      if(lenF==2) throw "Formato Vazio: \"[]\"";
-      // Caso a classe inversa esteja vazia: "[^]"
-      if(lenF==3 && format[1]=='^') throw "Formato Vazio: \"[^]\"";
-      // Caso a classe não termine com ']': "[abc"
-      if(format[lenF-1] != ']') throw "Formato Inválido: \"[abc\"";
-      // Caso o formato não comece com '[': "abc]"
-      if(format[0]!='[') throw "Formato Inválido: \"abc]\"";
+      // If the class is empty "[]"
+      if(lenF==2) throw "Empty format: \"[]\"";
+      // If the class an inverse class and is empty: "[^]"
+      if(lenF==3 && format[1]=='^') throw "Empty format: \"[^]\"";
+      // If the class don't end with a ']': "[abc"
+      if(format[lenF-1] != ']') throw "Invalid format: \"[abc\"";
+      // If the class doesn't start with a '[': "abc]"
+      if(format[0]!='[') throw "Invalid format: \"abc]\"";
     
-      // Verificando se é uma classe ou uma classe inversa,
-      // Se for uma classe a posição de inicio é 2 se for inversa é 3.
+      // Checking if its a class or an inverse class:
+      // If its a class the start position is 2, if its an inverse class its 3.
       int j = format[1]!='^'?2:3;
       
-      // Continuando com os testes:
+      // Continue with the tests:
       
-      // Se o formato está no formato: "[abc]edf]"
+      // If the class have the format: "[abc]edf]"
       if(j+1<lenF)
         for( ; format[j+1]; j++)
-          if(format[j] == ']') throw "Formato Inválido: \"[abc]edf]\"";
-      // Note que no for acima note que o formato: []abc] ou [^]abc] é aceito.
-      // Nesse caso não há erro pois o ']' será tratado como um caractere.
+          if(format[j] == ']') throw "Invalid format: \"[abc]edf]\"";
+      // Note that "[]abc]" or "[^]abc]" is an accepted format.
+      // (it`s important to make the class include the character ']' in it)
       
-      
-      // Caso o usuário escreva algo ambiguo no formato como: "[a--b]"
+      // In case the user writes something ambiguous like: "[a--b]"
       j = format[1]!='^'?3:4;
       if(j+2<lenF)
         for( ; format[j+2]; j++)
           if(format[j-1]=='-' && format[j] =='-')
-            throw "Formato Inválido: \"[a--b]\"";
-      // Note no for acima que não há problema em escrever: "[--b]" ou "[a--]"
+            throw "Invalid format: \"[a--b]\"";
+      // Note that there is no problem with the formats: "[--b]" or "[a--]"
       
-      // Caso o usuário escreva: "[a-b-c]" ou algo semelhante:
+      // In case the user writes: "[a-b-c]" or something like that.
       j = format[1]!='^'?4:5;
       if(j+2<lenF)
         for( ; format[j+2]; j++)
           if(format[j-2]=='-' && format[j] =='-')
-            throw "Formato Inválido: \"[a-b-c]\"";
+            throw "Invalid format: \"[a-b-c]\"";
     }
     
-    /* * * * * * * Fim dos Testes de Validade * * * * * * */
+    /* * * * * * * End of the validity tests * * * * * * */
   }
   
   pMatch::charClass::charClass(const char* format) :
     charClass(string(format)) {}
   
-// Define usado para iterar por uma classe de caracteres:
-// [abc] por exemplo.
+// Define used for iterate over a character class format:
+// ([abc] for example)
 #define forClass(c,i) \
   for(i=1; c[i]!=']' || i==1; i++)
 
-// Define usado para iterar sobre uma classe inversa de caracteres:
+// Define used for iterate over an inverse character class format:
 // [^abc]
 #define forNotClass(c,i) \
   for(i=2; c[i]!=']' || i==2; i++)
@@ -93,24 +91,24 @@ bool pMatch::charClass::match(char input)
   {
     charClass format = *this;
     
-    // Length do formato:
+    // Format length:
     int lenF = format.length();
     
-    // * * * * * * * Inicio da Execução Caso "a", "b" ou "c" * * * * * * *
+    // * * * * * * * Start the matching case for "a", "b" or "c" * * * * * * *
     
     if(format[0] != '[' || lenF == 1)
       return input==format[0];
     
-    // * * * * * * * Inicio da Execução Caso formato = "[abc]" * * * * * * *
+    // * * * * * * * Start the matching case for "[abc]" * * * * * * *
     
     else if(format[1]!='^')
-    // Quando o formato for do tipo "[abc]"
+    // When the format is like: "[abc]"
     {
       int j;
-      // Iterando sobre a string format
+      // Iterating over the string format:
       forClass(format, j)
       {
-        // Caso o format seja do tipo: "[a-z]"
+        // In case format is like: "[a-z]"
         if( j != 1 && j != lenF-2 && format[j] == '-')
         {
           int ini, fim;
@@ -123,22 +121,22 @@ bool pMatch::charClass::match(char input)
           for(c++ ; c < format[fim]; c++)
             if(input == c) return true;
         }
-        // Caso o formato seja do tipo simples: "[abc]"
+        // In case format is simple: "[abc]"
         else if( input == format[j] )
           return true;
       }
       return false;
     }
     
-    // * * * * * * * Inicio da Execução Caso formato = "[^abc]" * * * * * * *
+    // * * * * * * * Start the matching case for "[^abc]" * * * * * * *
     
     else
     {
       int j;
-      // Iterando sobre a string format
+      // Iterating over the format:
       forNotClass(format, j)
       {
-        // Caso o format seja do tipo: "[^a-z]"
+        // In case the format is like: "[^a-z]"
         if( j != 2 && j != lenF-2 && format[j] == '-')
         {
           int ini, fim;
@@ -153,7 +151,7 @@ bool pMatch::charClass::match(char input)
               return false;
         }
         
-        // Caso o format seja do tipo: "[^abc]"
+        // In case the format is like: "[^abc]"
         if( input == format[j])
           return false;
       }
@@ -161,45 +159,45 @@ bool pMatch::charClass::match(char input)
       return true;
     }
     
-    // * * * * * * * Fim da Execução da Função * * * * * * *
+    // * * * * * * * End function * * * * * * *
     
-    // Se o fluxo de execução chegar aqui há um erro no código.
-    throw "Erro no codigo! Na funcao pMatch::charClass::match()!";
+    // If the execution flow gets here:
+    throw "Error in the code! On function pMatch::charClass::match()!";
   }
 // */
 
 /*
  *
- * Função FindChar
- * @desc - Busca em uma string `input` por um caractere 
- *         dentre um conjunto de caracteres possíveis.
+ * Function FindChar
+ * @desc - Search in a string `input` for one character
+ *         defined in a set of characters;
  *         
- *         Os caracteres possíveis são descritos na string `format`
+ *         The set of characters are defined on this->format
  * 
- * @param - input: string a ser pesquisada.
- *        - format: string que define os caracteres à serem procurados.
- *        - pos: variável passada por referencia, contém a posição
- *               de inicio da busca no inicio da execução,
- *               e contém a posição do caractere encontrado
- *               no momento em que a execução termina.
+ * @param - input: string to be searched.
+ *        - format: string containing the set of characters.
+ *        - pos: variable passed by reference, contains the start
+ *               position of the search on the beginning of the execution.
+ *               On the end of the execution it contains the position
+ *               of the first matching character.
  *
- * @return - retorna o caractere encontrado.
+ * @return - returns the matched character.
  *
- * @notas - o sistema aceita classes de caracteres.
- *          As classes aceitas atualmente são:
+ * @notas - the system accepts character classes.
+ *          the following formats are accepted:
  *          
  *            "[abc]", "[a-x]", "[x-a]", "[abc-]", "[]]", "[]abc]"
  *          
- *          Também se aceita todas as inversas das classes acima:
+ *          The inverse format of the above classes are also accepted:
  *
  *            "[^abc], "[^a-x]", "[^x-a]", "[^abc-]", "[^]]", "[^]abc]"
  *
- *          Por fim aceita-se também caracteres específicos:
+ *          Solo characters are also accepted:
  *
  *            "a", "b", "c" ... etc ...
  *
- *          O significado semantico de cada notação é o padrão para ERs.
- *          (foi baseado na semantica do LEX, que acredito ser padrão)
+ *          The meaning of each format is as defined for the GNU RegEx`s
+ *          The notation [x-a] also works even if on GNU RegEx`s only [a-x] work.
  *  
  */
 char pMatch::charClass::find(string input, int& pos)
@@ -210,7 +208,7 @@ char pMatch::charClass::find(string input, int& pos)
   int i;
   
   if(pos<0 || pos>len)
-    throw "Em pMatch::charClass::find() - Param 'pos' inválido";
+    throw "In pMatch::charClass::find() - Parameter 'pos' is invalid";
   
   for(i=pos; input[i]; i++)
   {
@@ -226,17 +224,16 @@ char pMatch::charClass::find(string input, int& pos)
 }
 
 /*
- * @nome - charClass::getClass
+ * @name - charClass::getClass
  *
- * @desc - essa função constroi um charClass a partir de uma
- *         string formada por uma sequencia de strings 
- *         em formatos compatíveis com um charClass
+ * @desc - this function extract a the first charClass 
+ *         it can find from a string with custom values.
  *
- *         Ao fim da execução o inteiro pos aponta para a posição
- *         de inicio da próxima busca nessa mesma string.
+ *         At the end of execution the integer `pos` point to
+ *         the first position after the end of the extracted charClass.
  *
- *         Assim é possível fazer um parse em uma string grande
- *         transformando-a em um array de charClasse`s.
+ *         This way it is possible to parse a bigger string
+ *         into a sequence of charClasses using this function.
  *
  */
 // /*
@@ -244,69 +241,69 @@ char pMatch::charClass::find(string input, int& pos)
   {
     int i = pos;
     
-    // Tratamento dos parâmetros:
+    // Treating the parameters:
     if(pos<0 || (unsigned)pos > format.length())
-      throw "Variável pos inválida! pMatch::charClass::getClass";
+      throw "Invalid parameter `pos`! pMatch::charClass::getClass";
     
     if((unsigned)pos == format.length())
-      throw "String Vazia! pMatch::charClass::getClass";
+      throw "Empty string! pMatch::charClass::getClass";
     
-    // Caso haja um caractere de escape.
+    // In case there is a character escape:
     if(format[i]=='\\')
     {
-      // A resposta é o próximo caractere da string:
+      // The answer is the next character of the string:
       charClass resp(format.substr(i+1,1));
       
-      // O ponteiro pos aponta para o primeiro caractere após
-      // o caractere retornado.
+      // `pos` now points to the first character after the matched one.
       pos+=2;
       
       return resp;
     }
-    // Caso seja um caractere simples e não uma classe de caracteres:
+    // In case its found a solo character and not a character class:
     else if(format[i]!='[')
     {
-      // retorne esse caractere.
+      // Return this charater:
       charClass resp(format.substr(i,1));
-      // Aponte o ponteiro para a posição seguinte.
+      // Point `pos` to the next position:
       pos++;
       return resp;
     }
     
-    // Se chegou aqui trata-se de um formato do tipo: "[abc]" ou "[^abc]"
+    // If it got here its a character class like: "[abc]" ou "[^abc]"
     
-    // Agora vamos buscar o caractere de fechamento: ']'
+    // Now seach for the ending character: ']'
+
+    // Jump the open brackets and the first character:
     i+=2;
     
-    // Note que i+=2 pula o primeiro caractere da classe.
-    // Isso ocorre para permitir a classe "[]abc]" ou "[]]"
+    // Note that i+=2 jump the first character of the class.
+    // This happens for allowing a class like: "[]abc]" or "[]]"
     
-    // E para permitir as classes: "[^]abc]" e "[^]]":
+    // And for allowing classes like: "[^]abc]" e "[^]]":
     if(format[i-1]=='^') i++;
     
     if( (unsigned)i < format.length() )
     
-      // Para cada caractere a partir da posição atu[abc]al.
+      // For each character starting from the `i` position:
       for(; format[i]; i++)
       {
-        // Se ele for o de fechamento de couchete retorne.
+        // If its a closing brackets:
         if(format[i]==']')
         {
-          // resp = classe: "[...]"
+          // Build charClass:
           charClass resp(format.substr(pos, i-pos+1));
-          // pos é atualizado para a próxima posição:
+          // update `pos` to the next position:
           pos = i+1;
           
           return resp;
         }
       }
-      // Note que por causa do i+=2 eu pulei a primeira posição.
-      // Assim garanto que eu detectarei a classe []abc]
-      // E não detectarei a classe [] (essa classe não existe)
-    
-    // Caso o formato abra um couchete mas não o feche
-    // Ele caí em caso de erro:
-    throw "Formato abre couchete mas não o fecha! pMatch::getClass";
+      // Since we jumped the first character (i+=2)
+      // The following classes are accepted: "[]abc]", "[^]abc]"
+      // And the following isn't: "[]", "[^]"
+
+    // If the format opens a bracket but doesn't close it:
+    throw "Format has an opening '[', but don't end in ']'! pMatch::getClass";
   }
 // */
 
