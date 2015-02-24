@@ -9,13 +9,14 @@ OP="ALL"
 CC    =  g++
 FLAGS = -Wall -std=c++11
 OBJS  =  ambiente.o padrao.o banco.o vars.o
-MAIN  =  talkin
+BIN  =  talkin
+MAIN  =  main.cpp
 
-$(MAIN): $(OBJS)
+$(BIN): $(OBJS)
 	@echo ""
-	@echo " - Compilando \"$(MAIN)\" -"
+	@echo " - Compilando \"$(BIN)\" -"
 	@echo ""
-	@$(CC) $(FLAGS) $(OBJS) -o $(MAIN)
+	@$(CC) $(FLAGS) $(OBJS) $(MAIN) -o $(BIN)
 
 %.o: %.cpp %.hpp
 	@echo ""
@@ -26,18 +27,18 @@ $(MAIN): $(OBJS)
 number:
 	@echo "#define NUMBER $(OP)" > testes/number.h
 
-run: $(MAIN)
-	./$(MAIN)
+run: $(BIN)
+	./$(BIN)
 
-safe_run: $(MAIN)
-	xterm ./$(MAIN)
+safe_run: $(BIN)
+	xterm ./$(BIN)
 
 test: number
-	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o teste -Wall -std=c++11
-	./teste
+	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o Test -Wall -std=c++11
+	./Test
 
 clean:
-	@rm -f $(MAIN) *.o
+	@rm -f $(BIN) *.o
 	@export TERM=xterm
 	@clear
 
