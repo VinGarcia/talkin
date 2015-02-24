@@ -7,84 +7,92 @@
 // O banco é acessado somente pela classe objectClass.
 #include "banco.hpp"
   
-  using namespace std;
-  using namespace pMatch;
+using namespace std;
+using namespace pMatch;
 
 /* * * * * START charClass: * * * * */
-  
-// Construtora da Classe de caracteres:
-  pMatch::charClass::charClass(string format) : string(format)
-  {
-    // Length do formato:
-    int lenF = format.length();
-    
-    /* * * * * * * Inicio dos Testes de Validade * * * * * * */
-    
-    if(lenF==0) throw "String Vazia!";
-    
-    if(lenF==2 && format[0]=='\\')
-    {
-      (*this)[0] = (*this)[1];
-      this->pop_back();
-    }
-    // Se o formato não for do tipo simples: "a" ou "b"
-    else if(lenF!=1 && !(lenF==2 && format[0]=='\\'))
-    // Então faça os seguintes testes de coerência:
-    {
-      // Caso a classe esteja vazia: "[]"
-      if(lenF==2) throw "Formato Vazio: \"[]\"";
-      // Caso a classe inversa esteja vazia: "[^]"
-      if(lenF==3 && format[1]=='^') throw "Formato Vazio: \"[^]\"";
-      // Caso a classe não termine com ']': "[abc"
-      if(format[lenF-1] != ']') throw "Formato Inválido: \"[abc\"";
-      // Caso o formato não comece com '[': "abc]"
-      if(format[0]!='[') throw "Formato Inválido: \"abc]\"";
-    
-      // Verificando se é uma classe ou uma classe inversa,
-      // Se for uma classe a posição de inicio é 2 se for inversa é 3.
-      int j = format[1]!='^'?2:3;
-      
-      // Continuando com os testes:
-      
-      // Se o formato está no formato: "[abc]edf]"
-      if(j+1<lenF)
-        for( ; format[j+1]; j++)
-          if(format[j] == ']') throw "Formato Inválido: \"[abc]edf]\"";
-      // Note que no for acima note que o formato: []abc] ou [^]abc] é aceito.
-      // Nesse caso não há erro pois o ']' será tratado como um caractere.
-      
-      
-      // Caso o usuário escreva algo ambiguo no formato como: "[a--b]"
-      j = format[1]!='^'?3:4;
-      if(j+2<lenF)
-        for( ; format[j+2]; j++)
-          if(format[j-1]=='-' && format[j] =='-')
-            throw "Formato Inválido: \"[a--b]\"";
-      // Note no for acima que não há problema em escrever: "[--b]" ou "[a--]"
-      
-      // Caso o usuário escreva: "[a-b-c]" ou algo semelhante:
-      j = format[1]!='^'?4:5;
-      if(j+2<lenF)
-        for( ; format[j+2]; j++)
-          if(format[j-2]=='-' && format[j] =='-')
-            throw "Formato Inválido: \"[a-b-c]\"";
-    }
-    
-    /* * * * * * * Fim dos Testes de Validade * * * * * * */
-  }
-  
-  pMatch::charClass::charClass(const char* format) :
-    charClass(string(format)) {}
-  
-// Define usado para iterar por uma classe de caracteres:
-// [abc] por exemplo.
-#define forClass(c,i) \
-  for(i=1; c[i]!=']' || i==1; i++)
 
-// Define usado para iterar sobre uma classe inversa de caracteres:
-// [^abc]
-#define forNotClass(c,i) \
-  for(i=2; c[i]!=']' || i==2; i++)
+// Construtora da Classe de caracteres:
+pMatch::charClass::charClass(string format) : string(format)
+{
+  // Length do formato:
+  int lenF = format.length();
+  
+  /* * * * * * * Inicio dos Testes de Validade * * * * * * */
+  
+  if(lenF==0) throw "String Vazia!";
+  
+  if(lenF==2 && format[0]=='\\')
+  {
+    (*this)[0] = (*this)[1];
+    this->pop_back();
+
+    format[0] = format[1];
+    format.pop_back();
+  }
+  // Se o formato não for do tipo simples: "a" ou "b"
+  else if(lenF!=1 && !(lenF==2 && format[0]=='\\'))
+  // Então faça os seguintes testes de coerência:
+  {
+    // Caso a classe esteja vazia: "[]"
+    if(lenF==2) throw "Formato Vazio: \"[]\"";
+    // Caso a classe inversa esteja vazia: "[^]"
+    if(lenF==3 && format[1]=='^') throw "Formato Vazio: \"[^]\"";
+    // Caso a classe não termine com ']': "[abc"
+    if(format[lenF-1] != ']') throw "Formato Inválido: \"[abc\"";
+    // Caso o formato não comece com '[': "abc]"
+    if(format[0]!='[') throw "Formato Inválido: \"abc]\"";
+  
+    // Verificando se é uma classe ou uma classe inversa,
+    // Se for uma classe a posição de inicio é 2 se for inversa é 3.
+    int j = format[1]!='^'?2:3;
+    
+    // Continuando com os testes:
+    
+    // Se o formato está no formato: "[abc]edf]"
+    if(j+1<lenF)
+      for( ; format[j+1]; j++)
+        if(format[j] == ']') throw "Formato Inválido: \"[abc]edf]\"";
+    // Note que no for acima note que o formato: []abc] ou [^]abc] é aceito.
+    // Nesse caso não há erro pois o ']' será tratado como um caractere.
+    
+    
+    // Caso o usuário escreva algo ambiguo no formato como: "[a--b]"
+    j = format[1]!='^'?3:4;
+    if(j+2<lenF)
+      for( ; format[j+2]; j++)
+        if(format[j-1]=='-' && format[j] =='-')
+          throw "Formato Inválido: \"[a--b]\"";
+    // Note no for acima que não há problema em escrever: "[--b]" ou "[a--]"
+    
+    // Caso o usuário escreva: "[a-b-c]" ou algo semelhante:
+    j = format[1]!='^'?4:5;
+    if(j+2<lenF)
+      for( ; format[j+2]; j++)
+        if(format[j-2]=='-' && format[j] =='-')
+          throw "Formato Inválido: \"[a-b-c]\"";
+  }
+
+  /* * * * * * * Fim dos Testes de Validade * * * * * * */
+
+  // If the format is enclosed in brackets:
+  if((*this)[0]=='[' && (*this)[lenF-1]==']') {
+    this->erase(0,1);
+    this->pop_back();
+    lenF-=2;
+  }
+
+  // If format starts with '^', and it is not the only character in the format:
+  if((*this)[0]=='^' && lenF>1) {
+    this->erase(0,1);
+    this->invert = true;
+    lenF--;
+  }
+
+}
+  
+pMatch::charClass::charClass(const char* format) :
+  charClass(string(format)) {}
 
 // /*
 bool pMatch::charClass::match(string input, int pos)
@@ -92,79 +100,38 @@ bool pMatch::charClass::match(string input, int pos)
 bool pMatch::charClass::match(char input)
   {
     charClass format = *this;
-    
+
     // Length do formato:
     int lenF = format.length();
     
-    // * * * * * * * Inicio da Execução Caso "a", "b" ou "c" * * * * * * *
+    // * * * * * * * Inicio da Execução * * * * * * *
     
-    if(format[0] != '[' || lenF == 1)
-      return input==format[0];
-    
-    // * * * * * * * Inicio da Execução Caso formato = "[abc]" * * * * * * *
-    
-    else if(format[1]!='^')
-    // Quando o formato for do tipo "[abc]"
+    int j;
+    // Iterando sobre a string format
+    for(j=0; format[j]; j++)
     {
-      int j;
-      // Iterando sobre a string format
-      forClass(format, j)
+      // Caso o format seja do tipo: "[a-z]"
+      if( j != 0 && j != lenF-1 && format[j] == '-')
       {
-        // Caso o format seja do tipo: "[a-z]"
-        if( j != 1 && j != lenF-2 && format[j] == '-')
-        {
-          int ini, fim;
-          if(format[j-1]<format[j+1])
-            {ini = j-1; fim = j+1;}
-          else
-            {ini = j+1; fim = j-1;}
-          
-          char c=format[ini];
-          for(c++ ; c < format[fim]; c++)
-            if(input == c) return true;
-        }
-        // Caso o formato seja do tipo simples: "[abc]"
-        else if( input == format[j] )
-          return true;
-      }
-      return false;
-    }
-    
-    // * * * * * * * Inicio da Execução Caso formato = "[^abc]" * * * * * * *
-    
-    else
-    {
-      int j;
-      // Iterando sobre a string format
-      forNotClass(format, j)
-      {
-        // Caso o format seja do tipo: "[^a-z]"
-        if( j != 2 && j != lenF-2 && format[j] == '-')
-        {
-          int ini, fim;
-          if(format[j-1]<format[j+1])
-            {ini = j-1; fim = j+1;}
-          else
-            {ini = j+1; fim = j-1;}
-          
-          char c=format[ini];
-          for(c++ ; c < format[fim]; c++)
-            if(input == c)
-              return false;
-        }
+        int ini, fim;
+        if(format[j-1]<format[j+1])
+          {ini = j-1; fim = j+1;}
+        else
+          {ini = j+1; fim = j-1;}
         
-        // Caso o format seja do tipo: "[^abc]"
-        if( input == format[j])
-          return false;
+        char c=format[ini];
+        for(c++ ; c < format[fim]; c++)
+          if(input == c) return (this->invert?false:true);
       }
-      
-      return true;
+
+      // Caso o formato seja do tipo simples: "[abc]"
+      else if( input == format[j] )
+        return (this->invert?false:true);
     }
+    return (this->invert?true:false);
     
     // * * * * * * * Fim da Execução da Função * * * * * * *
     
-    // Se o fluxo de execução chegar aqui há um erro no código.
-    throw "Erro no codigo! Na funcao pMatch::charClass::match()!";
   }
 // */
 
@@ -312,7 +279,14 @@ char pMatch::charClass::find(string input, int& pos)
 
   string pMatch::charClass::str()
   {
-    return (*this);
+    string ret = string();
+    if(this->invert) {
+      ret += "^";
+    }
+    if(this->length() > 1) {
+      ret = "[" + ret + "]";
+    }
+    return ret;
   }
 
 /* * * * * END charClass: * * * * */

@@ -508,22 +508,22 @@ using namespace std;
     cout << "      " << resp << " - " << pos << endl << endl;
     
     cout << 3 << endl;
-    cout << "Teste " << "[a] - 3" << endl;
+    cout << "Teste " << "a - 3" << endl;
     resp = charClass::getClass("[a]", pos=0);
     cout << "      " << resp << " - " << pos << endl << endl;
     
     cout << 4 << endl;
-    cout << "Teste " << "[]abc[--] - 9" << endl;
+    cout << "Teste " << "]abc[-- - 9" << endl;
     resp = charClass::getClass("[]abc[--] ", pos=0);
     cout << "      " << resp << " - " << pos << endl << endl;
     
     cout << 5 << endl;
-    cout << "Teste " << "[^]abc[--] - 10" << endl;
+    cout << "Teste " << "]abc[-- - 10" << endl;
     resp = charClass::getClass("[^]abc[--] ", pos=0);
     cout << "      " << resp << " - " << pos << endl << endl;
     
     cout << 6 << endl;
-    cout << "Teste " << "[^]abc[--] - 10" << endl;
+    cout << "Teste " << "]abc[-- - 10" << endl;
     resp = charClass::getClass("[^]abc[--] ", pos=0);
     cout << "      " << resp << " - " << pos << endl << endl;
     
@@ -533,7 +533,7 @@ using namespace std;
     string s("[a]bc[--]");
     
     cout << 7.1 << endl;
-    cout << "Teste " << "[a] - 3" << endl;
+    cout << "Teste " << "a - 3" << endl;
     resp = charClass::getClass(s, pos);
     cout << "      " << resp << " - " << pos << endl << endl;
     
@@ -548,7 +548,7 @@ using namespace std;
     cout << "      " << resp << " - " << pos << endl << endl;
     
     cout << 7.4 << endl;
-    cout << "Teste " << "[--] - 9" << endl;
+    cout << "Teste " << "-- - 9" << endl;
     resp = charClass::getClass(s, pos);
     cout << "      " << resp << " - " << pos << endl << endl;
     

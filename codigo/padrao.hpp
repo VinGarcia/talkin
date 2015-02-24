@@ -13,6 +13,9 @@ namespace pMatch
   // Testado
   class charClass : public std::string
   {
+    private:
+    bool invert=false;
+
     public:
     charClass(std::string format);
     charClass(const char* format);
