@@ -25,6 +25,19 @@ namespace pMatch
     std::string str();
   };
   
+  /* 
+   * @name: tWord
+   * 
+   * @desc: A tWord is used to keep track of any matched words
+   *        as well as each word position inside a bigger text.
+   *        
+   *        It is important to allow high level matcher classes like:
+   *        arrayClass, and blockClass to remember when
+   *        multiple matchs happens on a same input string.
+   *        
+   *        Allowing them to match even in ambiguous cases returning
+   *        all possible interpretations.
+   */
   // Not going to be tested explicitly
   // Considered tested for extensive use on other modules.
   class tWord : public std::string
