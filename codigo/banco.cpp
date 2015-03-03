@@ -263,18 +263,20 @@ void banco::execInst(string texto)
   {
     // Aqui será mapeada a resposta do usuário de um inteiro
     // para um uma instancia de {pMatch::tInterpretacao, cInst}
-    map<int, pair<pMatch::tInterpretacao*, cInst*>> index;
+    vector<pair<pMatch::tInterpretacao*, cInst*>> index;
     
     j=0;
     int escolha=0;
     cout << "Ambiguidades encontradas: " << endl << endl;
+
+      cout << "    0 »» cancel\n" << endl;
     
     for(j=0; (unsigned)j<inst.size(); j++)
     {
       if(escopo[j].lInt.size()==1 && escopo[j].lInt.front().var.size()==0)
       {
-        index[escolha] = {&escopo[j].lInt.front(), &(inst[j])};
-        cout << "    " << escolha++ << " »» " << inst[j].str() << endl;
+        index.push_back( {&escopo[j].lInt.front(), &(inst[j])} );
+        cout << "    " << ++escolha << " »» " << inst[j].str() << endl;
       }
       else
       {
@@ -282,8 +284,8 @@ void banco::execInst(string texto)
         
         for(auto& k : escopo[j].lInt)
         {
-          index[escolha] = {&k, &(inst[j])};
-          cout << "    " << escolha++ << " »» " << lVar_to_str(k.var) << endl;
+          index.push_back ( {&k, &(inst[j])} );
+          cout << "    " << ++escolha << " »» " << lVar_to_str(k.var) << endl;
         }
       }
       cout << endl;
@@ -291,14 +293,23 @@ void banco::execInst(string texto)
     
     string line;
     
-    // Agora aguardamos a resposta do usuário:
-    getline(cin, line);
+    // Now wait for the user answer:
+    do {
+      getline(cin, line);
+      
+      escolha = atoi(line.c_str());
+    } while ((unsigned)escolha > index.size());
+
+    if(!escolha) {
+      cout << "  «« canceled »»" << endl;
+    }
+    else {
+      escolha--;
     
-    escolha = atoi(line.c_str());
-    
-    // E guardamos a interpretação escolhida por ele.
-    escopo_escolhido = *(index[escolha].first);
-    inst_escolhida = *(index[escolha].second);
+      // E guardamos a interpretação escolhida por ele.
+      escopo_escolhido = *(index[escolha].first);
+      inst_escolhida = *(index[escolha].second);
+    }
   }
   else
   {
