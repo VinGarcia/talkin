@@ -320,23 +320,23 @@ char pMatch::charClass::find(string input, int& pos)
   /*
    * @nome - strClass::strClass()
    * 
-   * @desc - Constroi uma lista formada por classe de caracteres.
-   *         Note que é possível uma lista vazia.
+   * @desc - Build a std::list of consecutive charClasses.
    *         
-   *         A interpretação format.length() para lista vazia
-   *         é a palavra <lambda>
-   *         ou seja, a palavra vazia.
-   *         E ela é casada com qualquer string.
+   *         Note that it's acceptable an empty list (thus an empty strClass).
    *         
+   *         An empty strClass works as a <lambda> on Computer Science Theory
+   *         thus matchs any given string as true.
    */
   pMatch::strClass::strClass(string str)
   {
     int pos=0;
     
-    // Tratando um erro possível:
+    // Back slash is not accepted on the end of the string:
     if(str[str.length()-1] == '\\')
       str.pop_back();
     
+    // Parse the string using the charClass::getClass
+    // Note that pos is received by reference on getClass function.
     while(str[pos])
       this->push_back( pMatch::charClass::getClass(str, pos) );
   }
@@ -347,16 +347,16 @@ char pMatch::charClass::find(string input, int& pos)
   /*
    * @nome - strClass::match()
    * 
-   * @desc - recebe uma string e compara os primeiros caracteres
-   *         dessa string com seu formato.
-   *         retornando true se forem iguais.
+   * @desc - matchs a normal string character by character
+   *         with its own charClass list.
+   *         return true if all is matched.
    *
-   *         note que a strClass("").match(str,pos) retorna true sempre.
+   *         note that strClass("") will always return true.
    *
    */
   bool pMatch::strClass::match(string input, int pos)
   {
-    // Limpa a lista antiga:
+    // Clean the old match_word list:
     this->match_word.clear();
     
     int len = this->size();
@@ -368,7 +368,7 @@ char pMatch::charClass::find(string input, int& pos)
         return false;
     }
     
-    // Adiciona o novo item a lista e retorna:
+    // Add a new item to the list and return:
     this->match_word.push_back(tWord(input.substr(pos,len), pos));
     return true;
   }
@@ -376,26 +376,24 @@ char pMatch::charClass::find(string input, int& pos)
   /*
    * @nome - strClass::find()
    * 
-   * @desc - recebe uma string input, e caminha por ela até encontrar
-   *         o primeiro match entre o seu formato e uma substring de input.
-   *         
-   *         Note que aceita-se a string vazia.        
+   * @desc - receive an input string and parse it until the first match.
    * 
    */
   pMatch::tWord pMatch::strClass::find(string input, int pos)
   {
     int lenF = this->size();
     
-    // Se o formato for de string vazia:
+    // If this format is of an empty strClass:
     if(lenF == 0)
-      // Aceite e retorne outra string vazia:
+      // TODO: check if returning an empty string is the correct behavior.
+      //       and make sure there is a test enforcing the correct behavior.
       return tWord("", pos);
     
     strClass::iterator it=this->begin();
     
     int i=pos;
     
-    // Encontra o primeiro caractere do input compatível com o formato:
+    // Find the first matching character on input:
     (*it).find(input, i); 
     
     while(input[i])
@@ -408,48 +406,56 @@ char pMatch::charClass::find(string input, int& pos)
       }
       else i++;
       
-      // Encontra o primeiro caractere do formato:
-      (*it).find(input, i); 
+      // Find the first matching character on input:
+      (*it).find(input, i);
     }
     
-    // Caso não encontre:
+    // In case it finds nothing:
     return tWord("", i);
   }
   
+  /*
+   * @name: strClass::getClass()
+   *
+   * @desc: parse a string searching for the bigger string possible, and returning it.
+   *        the string may end in '\0' or '('
+   *
+   */
   pMatch::strClass pMatch::strClass::getClass(string input, int& pos)
   {
     int start = pos;
     char c;
     
     if(pos<0 || (unsigned)pos > input.length())
-      throw "variável pos com valor inválido! pMatch::strClass::getClass";
+      throw "`pos` parameter with invalid value! pMatch::strClass::getClass";
      
     while(1)
     {
-      // Pesquise pela string em busca de um abre parentesis:
+      // Search the string for an open parenthesis:
       c = charClass("(").find(input, pos);
       
-      // Se encontrou um parentesis, mas ele tinha uma barra antes:
+      // If a parenthesis was found after a back slash:
       if(c=='(' && input[pos-1] == '\\')
       {
-        // ignore-o
+        // ignore it
         pos++;
         continue;
       }
       else 
       {
-        // Caso contrário retorne a string encontrada:
+        // Else return the string found:
         return strClass(input.substr(start, pos-start));
       }
     }
   }
   
-  // Gera uma string representando o conteúdo do objeto:
+  // Make a string representing the object content:
   string pMatch::strClass::str()
   {
     strClass::iterator it;
     string resp("");
     
+    // For each charClass on the list:
     for(it = this->begin(); it!=this->end(); it++)
       resp += *it;
     return resp;
