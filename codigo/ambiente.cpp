@@ -84,44 +84,6 @@ void interface()
 }
 
 
-/* * * * * START TEST cRotulo * * * * */
-
-// Teste do cRotulo:
-// Descomente para testar:
- /*
-// TODO: Elaborar esse teste.
-int main(int argc, char* argv[])
-{
-  using namespace pMatch;
-  
-  cRotulo* rot = &(banco::rotulos["teste"] = cRotulo("teste"));
-  
-  cout << " * * * * * TESTE cRotulo.match() * * * * *\n\n";
-  
-  cout << "  @Testes com cRotulo(string):" << endl << endl;
-  
-  try{
-  cout << 1 << endl;
-  cout << "Teste \"\"" << endl;
-  rot->match("testando",0);
-  cout << "      \"" << rot->getMatch().str() << '"' << endl; cout << endl;
-  }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-  
-  banco::addInst("teste: testando => #!stdout: working");
-  
-  try{
-  cout << 2 << endl;
-  cout << "Teste \"testando\"" << endl;
-  rot->match("testando",0);
-  cout << "      \"" << rot->getMatch().str() << '"' << endl; cout << endl;
-  }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-  
-  return 0;
-}
-// */
-
-/* * * * * END TEST cRotulo * * * * */
-
 /* * * * * START TEST banco * * * * */
 
 // Teste do banco:
