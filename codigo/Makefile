@@ -2,7 +2,7 @@
 .ONESHELL:
 
 # options for 'CLASS' are:
-# charClass, strClass, blockClass and arrayClass for now.
+# charClass, strClass, blockClass, arrayClass, objectClass, cRotulo, banco for now.
 CLASS=charClass
 OP="ALL"
 

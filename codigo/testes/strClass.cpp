@@ -6,8 +6,8 @@ using namespace std;
 
 /* * * * * START TEST strClass * * * * */
 
-  int main(int argc, char* argv[])
-  {
+int main(int argc, char* argv[])
+{
 
 /*
  * Teste do strClass
@@ -244,8 +244,8 @@ using namespace std;
 }
 #endif
     
-    return 0;
-  }
+  return 0;
+}
   
 /* * * * * END TEST strClass * * * * */
 
