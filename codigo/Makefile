@@ -34,8 +34,9 @@ safe_run: $(BIN)
 	xterm ./$(BIN)
 
 test: number
-	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o Test -Wall -std=c++11
-	./Test
+	@rm -f Test
+	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o Test.tmp -Wall -std=c++11
+	./Test.tmp
 
 clean:
 	@rm -f $(BIN) Test *.o
