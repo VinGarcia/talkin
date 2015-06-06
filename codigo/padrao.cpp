@@ -393,7 +393,7 @@ char pMatch::charClass::find(string input, int& pos)
     return tWord("", i);
   }
   
-  pMatch::strClass pMatch::strClass::getClass(string input, int& pos)
+  pMatch::strClass pMatch::strClass::getClass(string input, int& pos, string stop_on)
   {
     int start = pos;
     char c;
@@ -404,10 +404,10 @@ char pMatch::charClass::find(string input, int& pos)
     while(1)
     {
       // Pesquise pela string em busca de um abre parentesis:
-      c = charClass("(").find(input, pos);
+      c = charClass(stop_on).find(input, pos);
       
       // Se encontrou um parentesis, mas ele tinha uma barra antes:
-      if(c=='(' && input[pos-1] == '\\')
+      if(c && input[pos-1] == '\\')
       {
         // ignore-o
         pos++;

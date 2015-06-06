@@ -177,7 +177,7 @@ namespace pMatch
     // ou um '(' que não seja precedido por um '\\'.
     // Seu comportamento trata o '(' de forma especial.
     // As demais funções dessa classe são indiferentes ao '('.
-    static strClass getClass(std::string format, int& pos);
+    static strClass getClass(std::string format, int& pos, std::string stop_on = "(");
     
     std::string str();
   };
