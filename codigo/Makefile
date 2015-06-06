@@ -34,12 +34,12 @@ safe_run: $(BIN)
 	xterm ./$(BIN)
 
 test: number
-	@rm -f Test
+	@rm -f Test.tmp
 	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o Test.tmp -Wall -std=c++11
 	./Test.tmp
 
 clean:
-	@rm -f $(BIN) Test *.o
+	@rm -f $(BIN) Test.tmp *.o
 	@export TERM=xterm
 	@clear
 
