@@ -1243,11 +1243,23 @@ vars::cObject& getVar(
   std::string var_name, vars::cObject& local, vars::cObject& global
 )
 {
-  auto value = local.getVar(var_name);
-  if(value) return *value;
-  else if((value=global.getVar(var_name)))
-    return *(global.getVar(var_name));
-  else return global.addVar(var_name,"");
+  //cout << "ENTROU NO getVar!" << endl;
+
+  // Check if its a local variable:
+  auto& value1 = local.child(var_name);
+
+  //cout << "ret1:" << endl;
+  if(value1) return value1;
+
+  // Check if its a global variable:
+  auto& value2 = global.child(var_name);
+  //cout << "ret2:" << endl;
+  if(value2)
+    return value2;
+
+  // Then create a new variable on global scope:
+  //cout << "ret3:" << endl;
+  return global.child(var_name,true);
 }
 
 // Recebe um conjunto de variáveis locais e globais, e calcula

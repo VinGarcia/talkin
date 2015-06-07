@@ -71,9 +71,9 @@ namespace ambiente
       cExpressao exp = cExpressao(codigo,pos);
 
       vars::cObject* v;
-      if(!(v=local.getVar(var)))
-        if(!(v=global.getVar(var)))
-          v=&(global.addVar(var,""));
+      if(!(v=&local.child(var)))
+        if(!(v=&global.child(var)))
+          v=&(global.child(var,true));
 
       v->setValor(exp.eval(local,global));
 

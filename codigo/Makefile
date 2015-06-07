@@ -28,7 +28,7 @@ number:
 	@echo "#define NUMBER $(OP)" > testes/number.h
 
 run: $(BIN)
-	./$(BIN)
+	xterm ./$(BIN)
 
 safe_run: $(BIN)
 	xterm ./$(BIN)

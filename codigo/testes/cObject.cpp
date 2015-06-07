@@ -18,10 +18,7 @@ int main(int argc, char* argv[])
 {
   cout << " * * * * * TESTE cObject() * * * * *\n\n";
   
-  cout << "  @Testes com operandos numericos:" << endl << endl;
-  
-  // banco::addInst("(\"[0-9][0-9]*\")p; - p = 3 => #!stdout: works!");
-  // banco::execInst("3");
+  cout << "  @Testes basicos com cObject:" << endl << endl;
   
   try{
   cout << 1 << endl;
@@ -33,28 +30,28 @@ int main(int argc, char* argv[])
   try{
   cout << 2 << endl;
   cout << "Teste '{$:'valor',filho:{$:'primogenito'}}'" << endl;
-  var->addChild("filho","primogenito");
+  var->child("filho",true) = "primogenito";
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 3 << endl;
   cout << "Teste '{$:'primogenito'}'" << endl;
-  var = var->getVar("filho");
+  var = &var->child("filho");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 4 << endl;
   cout << "Teste '{$:'primogenito',neto1:{$:'primogenito'}}'" << endl;
-  var->addChild("neto1","primogenito");
+  var->child("neto1",true) = "primogenito";
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 5 << endl;
   cout << "Teste '{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'}}'" << endl;
-  var->addChild("neto2","caçula");
+  var->child("neto2",true) = "caçula";
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
@@ -67,48 +64,50 @@ int main(int argc, char* argv[])
 }
 #endif
 
-#if NUMBER==getVar || NUMBER==2 || NUMBER==ALL
+#if NUMBER==child || NUMBER==2 || NUMBER==ALL
 {
-  cout << "  @Testes com a função getVar()" << endl << endl;
+  cout << "  @Testes com a função child() para leitura" << endl << endl;
+
+  vars::cObject aux;
 
   try{
   cout << 1 << endl;
   cout << "Teste '{$:'caçula'}'" << endl;
-  var = dad->getVar("filho.neto2");
-  cout << "      '" << var->str() << "'" << endl << endl;
+  aux = dad->child("filho.neto2");
+  cout << "      '" << aux.str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 2 << endl;
   cout << "Teste null" << endl;
-  var = dad->getVar("filho.neto3");
-  cout << "      " << (!var?"null":"not_null") << endl << endl;
+  aux = dad->child("filho.neto3");
+  cout << "      " << (aux==cObject::undefined?"null":"not_null") << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 }
 #endif
 
-#if NUMBER==addVar || NUMBER==3 || NUMBER==ALL
+#if NUMBER==child || NUMBER==3 || NUMBER==ALL
 {
-  cout << "  @Testes com a função addVar()" << endl << endl;
+  cout << "  @Testes com a função child() para escrita" << endl << endl;
 
   try{
   cout << 1 << endl;
   cout << "Teste '{$:'valor',filho:{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'},neto3:{$:'nenem'}}}'" << endl;
-  dad->addVar("filho.neto3","nenem");
+  dad->child("filho.neto3",true) = "nenem";
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 2 << endl;
   cout << "Teste '{$:'valor',filho:{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'},neto3:{$:'nenem'},neto4:{bisneto1:{$:'embrião'}}}}'" << endl;
-  dad->addVar("filho.neto4.bisneto1","embrião");
+  dad->child("filho.neto4.bisneto1",true) = "embrião";
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 3 << endl;
   cout << "Teste '{$:'doce_de_leite',filho:{alpha:{biscoito:{$:'recheio'}}}}'" << endl;
-  dad = new cObject("doce_de_leite"); dad->addVar("filho.alpha.biscoito","recheio");
+  dad = new cObject("doce_de_leite"); dad->child("filho.alpha.biscoito",true) = "recheio";
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 }
