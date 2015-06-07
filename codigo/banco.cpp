@@ -6,7 +6,7 @@
 using namespace std;
 using namespace pMatch;
 
-vars::cVar local;
+vars::cObject local;
 
 // charClasses utilizados para lidar com caracteres em branco:
 charClass blank = charClass("[ \t\n]");
@@ -138,9 +138,9 @@ bool cInst::match(string str)
   // Para cada interpretação possível, verifique se o contexto é válido:
   for(auto j=var.lInt.begin(); j!= var.lInt.end(); )
   {
-    auto v = vars::cVar("local",*j);
+    auto v = vars::cObject(*j);
     // Se o contexto não for válido:
-    //if(contexto.eval(vars::cVar(j->var),ambiente::global))
+    //if(contexto.eval(vars::cObject(j->var),ambiente::global))
     if(!contexto.eval(v,ambiente::global))
     {
       j=var.lInt.erase(j);
@@ -1239,8 +1239,8 @@ cExpressao::cExpressao(std::string exp, int& pos)
 // Essa função recebe um nome de variável, e o conjunto de
 // variáveis globais e locais, e recupera a variável
 // desejada entre elas, obedecendo a prioridade das variaveis locais.
-vars::cVar& getVar(
-  std::string var_name, vars::cVar& local, vars::cVar& global
+vars::cObject& getVar(
+  std::string var_name, vars::cObject& local, vars::cObject& global
 )
 {
   auto value = local.getVar(var_name);
@@ -1252,7 +1252,7 @@ vars::cVar& getVar(
 
 // Recebe um conjunto de variáveis locais e globais, e calcula
 // o valor da expressão cExpressao com estas variáveis.
-std::string cExpressao::eval(vars::cVar local, vars::cVar global)
+std::string cExpressao::eval(vars::cObject local, vars::cObject global)
 {
   string resp;
   list<string> pilha;
@@ -1457,7 +1457,7 @@ void cContexto::build(std::string contexto)
 
 // Avalia cada uma das expressões do contexto.
 // Caso uma delas seja falsa o contexto é considerado falso.
-bool cContexto::eval(vars::cVar& local, vars::cVar& global)
+bool cContexto::eval(vars::cObject& local, vars::cObject& global)
 {
   for(auto& exp : this->expList)
     if(exp.eval(local,global)==string("")) return false;
@@ -1482,7 +1482,7 @@ cContexto::cContexto(std::string contexto, int& pos)
   build(contexto);
 }
 
-void executaSig(vars::cVar local, cSignificado sig)
+void executaSig(vars::cObject local, cSignificado sig)
 {
   int aux=0;
   string str = sig.texto;
@@ -1506,7 +1506,7 @@ void executaSig(vars::cVar local, cSignificado sig)
 void executa(cInst inst, pMatch::tInterpretacao escopo_local)
 {
   // Variáveis locais:
-  local = vars::cVar("local",escopo_local);
+  local = vars::cObject(escopo_local);
 
   list<cSignificado> sigs = inst.getSignificados();
   

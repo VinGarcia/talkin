@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
 {
   cout << "  @Testes avaliando operações com strings:" << endl << endl;
 
-  vars::cVar local, global;
+  vars::cObject local, global;
 
   try{
   cout << 1.1 << endl;

@@ -4,14 +4,15 @@
 using namespace vars;
 using namespace std;
 
-// cVar utilizado para denotar
+// cObject utilizado para denotar
 // variaveis não definidas quando utilizando
 // o metodo getVar.
-cVar vars::cVar::undefined = cVar(true);
+cObject vars::cObject::undefined = cObject(true);
+cObject vars::cObject::null = cObject(true);
 
-void vars::cVar::build(pMatch::tInterpretacao tInt)
+void vars::cObject::build(pMatch::tInterpretacao tInt)
 {
-  cVar* grand_father;
+  cObject* grand_father;
   if(this->grand_father == NULL)
     grand_father = this;
   else
@@ -26,30 +27,27 @@ void vars::cVar::build(pMatch::tInterpretacao tInt)
 
     // Se o nome não começar com couchete:
     if(v.nome[0]!='[' && v.nome.length()>0) 
-      subvars[v.nome] = cVar(v, grand_father,this->deep+1);
+      subvars[v.nome] = cObject(v, grand_father,this->deep+1);
     
     // Caso comece com couchete:
     else
       // Insira na posição indicada pelo numero entre os couchetes:
-      array[atoi(v.nome.substr(1,v.nome.size()-1).c_str())]=cVar(v, grand_father, this->deep+1);
+      array[atoi(v.nome.substr(1,v.nome.size()-1).c_str())]=cObject(v, grand_father, this->deep+1);
   }
 }
 
-vars::cVar::~cVar() {}
+vars::cObject::~cObject() {}
 
-vars::cVar::cVar() {bBuild=true;}
+vars::cObject::cObject() {bBuild=true;}
 
-vars::cVar::cVar(pMatch::cVar var)
+vars::cObject::cObject(pMatch::cVar var)
 {
-  this->nome = var.nome;
-
   build(var.lInt.front());
   bBuild=true;
 }
 
-vars::cVar::cVar(pMatch::cVar var, cVar* grand_father, int deep)
+vars::cObject::cObject(pMatch::cVar var, cObject* grand_father, int deep)
 {
-  this->nome = var.nome;
   this->grand_father = grand_father;
   this->deep = deep;
 
@@ -57,17 +55,15 @@ vars::cVar::cVar(pMatch::cVar var, cVar* grand_father, int deep)
   bBuild=true;
 }
 
-vars::cVar::cVar(string nome, pMatch::tInterpretacao tInt)
+vars::cObject::cObject(pMatch::tInterpretacao tInt)
 {
-  this->nome = nome;
-  
   build(tInt);
   bBuild=true;
 }
 
-vars::cVar::cVar(string nome, string valor)
+vars::cObject::cObject(const char* valor) : cObject((string)valor) {};
+vars::cObject::cObject(string valor)
 {
-  this->nome = nome;
   this->valor = valor;
   this->deep = 0;
   bBuild=true;
@@ -83,9 +79,9 @@ vars::cVar::cVar(string nome, string valor)
 // @return - Em caso de sucesso retorna a variável em questão.
 //         - Em caso de fracasso retorna a variável estatica 'undefined'
 //
-cVar* vars::cVar::getVar(string endereco)
+cObject* vars::cObject::getVar(string endereco)
 {
-  cVar* grand_father = this->grand_father;
+  cObject* grand_father = this->grand_father;
   if(this->grand_father==NULL)
     grand_father=this;
 
@@ -99,14 +95,17 @@ cVar* vars::cVar::getVar(string endereco)
   else return NULL;
 }
 
-cVar* vars::cVar::operator[](string endereco)
+cObject* vars::cObject::operator[](string endereco)
 {
   return getVar(endereco);
 }
 
-void vars::cVar::addChild(string nome, string valor)
+void vars::cObject::addChild(string nome, const char* valor) {
+  addChild(nome, string(valor));
+}
+void vars::cObject::addChild(string nome, string valor)
 {
-  subvars[nome] = cVar(nome,valor);
+  subvars[nome] = cObject(valor);
   subvars[nome].deep = this->deep+1;
 
   if(!grand_father)
@@ -115,22 +114,23 @@ void vars::cVar::addChild(string nome, string valor)
     subvars[nome].grand_father = this->grand_father;
 }
 
-void vars::cVar::addChild(cVar child)
+void vars::cObject::addChild(string nome, cObject child)
 {
-  this->subvars[child.nome] = cVar(child.nome,child.valor);
-  subvars[child.nome].deep = this->deep+1;
+  this->subvars[nome] = cObject(child.valor);
+  this->subvars[nome].deep = this->deep+1;
 
   if(!grand_father)
-    subvars[child.nome].grand_father = this;
+    subvars[nome].grand_father = this;
   else
-    subvars[child.nome].grand_father = this->grand_father;
+    subvars[nome].grand_father = this->grand_father;
 }
-cVar& vars::cVar::addVar(std::string addr, std::string valor)
+cObject& vars::cObject::addVar(std::string addr, std::string valor)
 {
-  // Pule os espaços em branco no inicio do nome:
   int ini=0;
-  while(addr[ini]==' ' || addr[ini]=='\n' || addr[ini]=='\t') ini++;
   int fim=addr.length()-1;
+
+  // Strip the name from empty spaces:
+  while(addr[ini]==' ' || addr[ini]=='\n' || addr[ini]=='\t') ini++;
   while(addr[fim]==' ' || addr[fim]=='\n' || addr[fim]=='\t') fim--;
 
   return addVar(addr.substr(ini,fim-ini+1),valor,NULL);
@@ -140,12 +140,11 @@ cVar& vars::cVar::addVar(std::string addr, std::string valor)
  * @nome - addVar
  * 
  * @desc - recebe um endereço de variável e um valor.
- *         e adiciona caso não existam todas as variáveis
- *         descritas no endereço como subvariaveis
- *         uma das outras até chegar na última variável do endereço.
- *         Essa última variável além de ser criada tambeḿ recebe o valor citado.
+ *         Se o endereço da forma a.b.c contiver variáveis não
+ *         declaradas aloque cada uma delas.
+ *         A última variável além de ser alocada receberá o valor como atributo.
  *
- * @param - endereco_var: endereço a ser criado.
+ * @param - endereco_var: endereço completo da variável.
  *          valor: valor a ser adicionado à última variável criada.
  *          nearestVar: ponteiro usado internamente para evitar
  *            um loop desnecessário.
@@ -153,14 +152,14 @@ cVar& vars::cVar::addVar(std::string addr, std::string valor)
  *            e o valor obtido é escrito em nearestVar.
  *
  */
-cVar& vars::cVar::addVar(std::string endereco_var, std::string valor, cVar* nearestVar)
+cObject& vars::cObject::addVar(std::string endereco_var, std::string valor, cObject* nearestVar)
 {
   int i=0, inicio;
   string nome;
-  cVar var;
+  cObject var;
 
   if(endereco_var==string(""))
-    throw "endereco_var é uma string vazia!:vars::cVar::addVar()";
+    throw "endereco_var é uma string vazia!:vars::cObject::addVar()";
 
   if(nearestVar==NULL)
     nearestVar=&(getNearestVar(endereco_var).second);
@@ -176,7 +175,7 @@ cVar& vars::cVar::addVar(std::string endereco_var, std::string valor, cVar* near
   }
   
   if(!endereco_var[i])
-    throw "Valor da variável privada deep corrompido!:vars::cVar::addVar()";
+    throw "Valor da variável privada deep corrompido!:vars::cObject::addVar()";
   
   // Aponte para o inicio do nome:
   if(endereco_var[i]=='.') i++;
@@ -209,13 +208,13 @@ cVar& vars::cVar::addVar(std::string endereco_var, std::string valor, cVar* near
   }
 }
 
-cVar& vars::cVar::setValor(std::string valor)
+cObject& vars::cObject::setValor(std::string valor)
 {
-  cVar* resp=this;
+  cObject* resp=this;
   if(this == &undefined)
   {
     if(grand_father->undef_father==NULL)
-      throw "undef_father corrompido!:vars::cVar::operator=()";
+      throw "undef_father corrompido!:vars::cObject::operator=()";
     
     resp = &(grand_father->addVar(grand_father->undef_addr,""));
   }
@@ -225,16 +224,17 @@ cVar& vars::cVar::setValor(std::string valor)
   return (*resp);
 }
 
-std::pair<bool,cVar&> vars::cVar::getNearestVar(string endereco)
+std::pair<bool,cObject&> vars::cObject::getNearestVar(string endereco, bool create)
 {
   // Lança a versão recursiva dessa função:
-  return rec_getNearestVar(endereco,0);
+  return rec_getNearestVar(endereco, 0, create);
 }
 
-std::pair<bool,cVar&> vars::cVar::rec_getNearestVar(string& endereco, int pos)
+std::pair<bool,cObject&> vars::cObject::rec_getNearestVar(string& endereco, int pos, bool create)
 {
   int ini, fim;
   
+  // Check for invalid parameters:
   if(endereco==string("")) return {false,*this};
   if(endereco[pos]=='\0')  return {false,*this};
   
@@ -246,7 +246,7 @@ std::pair<bool,cVar&> vars::cVar::rec_getNearestVar(string& endereco, int pos)
     
     // Encontre o final do numero:
     while(endereco[pos]!=']' && endereco[pos]) pos++;
-    if(!endereco[pos]) throw "Endereco de variavel abre couchete mas não o fecha! vars::cVar::getNearestVar()!";
+    if(!endereco[pos]) throw "Endereco de variavel abre couchete mas não o fecha! vars::cObject::getNearestVar()!";
     pos++;
   }
   else
@@ -257,16 +257,16 @@ std::pair<bool,cVar&> vars::cVar::rec_getNearestVar(string& endereco, int pos)
     // Encontre o final do nome:
     while(endereco[pos]!='.' && endereco[pos]!='[' && endereco[pos]) pos++;
     
-    if(ini==pos) throw "Esperado nome de variável antes de '.', '[' ou '\0'. vars::cVar::getNearestVar()";
+    if(ini==pos) throw "Esperado nome de variável antes de '.', '[' ou '\0'. vars::cObject::getNearestVar()";
   }
   
-  // Desconsidere espaços em branco ao inicio:
-  while(endereco[ini]==' ' || endereco[ini]=='\t' || endereco[ini]=='\n') ini++;
-  
   fim = pos-1;
-  // Desconsidere espaços em branco ao fim:
+
+  // Strip the name from empty spaces:
+  while(endereco[ini]==' ' || endereco[ini]=='\t' || endereco[ini]=='\n') ini++;
   while(endereco[fim]==' ' || endereco[fim]=='\t' || endereco[fim]=='\n') fim--;
   
+  // Extract the name:
   string var_name = endereco.substr(ini, fim-ini+1);
   
   // Caso o endereço tenha terminado em pos.
@@ -285,19 +285,100 @@ std::pair<bool,cVar&> vars::cVar::rec_getNearestVar(string& endereco, int pos)
   else return {false,*this};
 }
 
-std::string vars::cVar::str()
+cObject& vars::cObject::child(string endereco, bool create)
 {
-  string resp = "(" + this->nome + ":" + this->valor + ")";
-  resp += to_string(this->deep);
+  // Lança a versão recursiva dessa função:
+  return rec_child(endereco, 0, create);
+}
+
+cObject& vars::cObject::rec_child(string& endereco, int pos, bool create)
+{
+  int ini, fim;
+  
+  // Check for invalid parameters:
+  if(endereco==string("")) return null;
+  if(endereco[pos]=='\0')  return null;
+  
+  // Encontre o nome da primeira variável:
+  if(endereco[pos]=='[')
+  {
+    pos++;
+    ini = pos;
+    
+    // Encontre o final do numero:
+    while(endereco[pos]!=']' && endereco[pos]) pos++;
+    if(!endereco[pos]) throw "Endereco de variavel abre couchete mas não o fecha! vars::cObject::getNearestVar()!";
+    pos++;
+  }
+  else
+  {
+    if(endereco[pos]=='.') pos++;
+    ini = pos;
+    
+    // Encontre o final do nome:
+    while(endereco[pos]!='.' && endereco[pos]!='[' && endereco[pos]) pos++;
+    
+    if(ini==pos) throw "Esperado nome de variável antes de '.', '[' ou '\0'. vars::cObject::getNearestVar()";
+  }
+  
+  fim = pos-1;
+
+  // Strip the name from empty spaces:
+  while(endereco[ini]==' ' || endereco[ini]=='\t' || endereco[ini]=='\n') ini++;
+  while(endereco[fim]==' ' || endereco[fim]=='\t' || endereco[fim]=='\n') fim--;
+  
+  // Extract the name:
+  string var_name = endereco.substr(ini, fim-ini+1);
+
+  // Caso o endereço tenha terminado em pos.
+  if(endereco[pos]=='\0')
+  {
+    // Verifique se existe uma subvar compatível e retorne seu valor.
+    if(subvars.count(var_name)==1) return subvars[var_name];
+
+    if(create == true) {
+      subvars[var_name] = cObject();
+      return subvars[var_name];
+    }
+    
+    // Caso não haja uma subvar compatível retorne false:
+    return undefined;
+  }
+  
+  // Caso contrário e se existir uma próxima variável, continue a recursão:
+  if(subvars.count(var_name)==1)
+    return subvars[var_name].rec_child(endereco, pos);
+
+  if(create == true) {
+    subvars[var_name] = cObject();
+    return subvars[var_name].rec_child(endereco, pos);
+  } 
+
+  return undefined;
+}
+
+std::string vars::cObject::str()
+{
+  string resp;
+
+  if(this->valor != "")
+    resp += "{$:'" + this->valor +"',";
+  else
+    resp += "{";
 
   if(subvars.size()>0)
   {
-    resp += " {";
-    for(auto& i : subvars)
-      resp+=i.second.str()+",";
-    resp.pop_back();
-    resp += "}";
+    for(auto& i : subvars) {
+      resp += i.first + ":";
+      resp+=i.second.str();
+      resp += ",";
+    }
   }
+
+  if(resp.length()!=1)
+    resp.pop_back();
+
+  resp += "}";
 
   return resp;
 }

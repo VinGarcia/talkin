@@ -10,7 +10,7 @@
 #define BANCO_DE_INSTRUCOES
 
   // Guarda as variáveis locais para a função 'executa'
-  extern vars::cVar local;
+  extern vars::cObject local;
 
   class cInst;
   class cRotulo;
@@ -142,7 +142,7 @@
     cExpressao(std::string exp, int& pos);
     
     // Avalia uma expressão e retorna o resultado calculado:
-    std::string eval(vars::cVar local, vars::cVar global);
+    std::string eval(vars::cObject local, vars::cObject global);
     
     private:
     // Funções que representam os operadores:
@@ -202,7 +202,7 @@
     
     // Avalia o contexto com base nas variáveis globais e locais.
     // Retorna true caso o contexto seja verdadeiro segundo as variáveis dadas.
-    bool eval(vars::cVar& local, vars::cVar& global);
+    bool eval(vars::cObject& local, vars::cObject& global);
     
     bool empty(){ return expList.empty(); }
     
@@ -217,7 +217,6 @@
     }
   };
 
-  
   
   // Testado!
   class cSignificado
@@ -342,7 +341,7 @@
 // * * * * * Funções de uso das instruções: * * * * *
   
   bool avaliaContexto(
-    std::map<std::string, vars::cVar> globalVars,
+    std::map<std::string, vars::cObject> globalVars,
     pMatch::lVar localVars,
     std::list<std::string> contextos
   );

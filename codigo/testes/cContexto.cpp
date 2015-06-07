@@ -84,8 +84,8 @@ int main(int argc, char* argv[])
   cout << "      @Teste da função eval():" << endl << endl;
 
   // Criando variáveis locais:
-  vars::cVar v = vars::cVar();
-  v.subvars["var"] = vars::cVar();
+  vars::cObject v = vars::cObject();
+  v.subvars["var"] = vars::cObject();
   v.subvars["var"].nome = "var";
   v.subvars["var"].valor = "0";
   

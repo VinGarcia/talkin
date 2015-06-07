@@ -20,7 +20,7 @@ void inicializa_banco();
 namespace ambiente
 {
   // Variáveis globais
-  extern vars::cVar global;
+  extern vars::cObject global;
   
   // Drivers:
   class driver
@@ -70,7 +70,7 @@ namespace ambiente
       cout  << "codigo: " << codigo.substr(pos,codigo.size()-pos) << endl;
       cExpressao exp = cExpressao(codigo,pos);
 
-      vars::cVar* v;
+      vars::cObject* v;
       if(!(v=local.getVar(var)))
         if(!(v=global.getVar(var)))
           v=&(global.addVar(var,""));

@@ -5,18 +5,18 @@
 
 using namespace std;
 
-/* * * * * START TEST cVar * * * * */
+/* * * * * START TEST cObject * * * * */
 
 int main(int argc, char* argv[])
 {
-  vars::cVar* dad;
-  vars::cVar* var;
+  vars::cObject* dad;
+  vars::cObject* var;
 
-  using vars::cVar;
+  using vars::cObject;
 
-#if NUMBER==cVar || NUMBER==1 || NUMBER==ALL
+#if NUMBER==cObject || NUMBER==1 || NUMBER==ALL
 {
-  cout << " * * * * * TESTE cVar() * * * * *\n\n";
+  cout << " * * * * * TESTE cObject() * * * * *\n\n";
   
   cout << "  @Testes com operandos numericos:" << endl << endl;
   
@@ -25,42 +25,42 @@ int main(int argc, char* argv[])
   
   try{
   cout << 1 << endl;
-  cout << "Teste '(nome:valor)0'" << endl;
-  dad = new cVar("nome","valor"); var = dad;
+  cout << "Teste '{$:'valor'}'" << endl;
+  dad = new cObject("valor"); var = dad;
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 2 << endl;
-  cout << "Teste '(nome:valor)0 {(filho:primogenito)1}'" << endl;
+  cout << "Teste '{$:'valor',filho:{$:'primogenito'}}'" << endl;
   var->addChild("filho","primogenito");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 3 << endl;
-  cout << "Teste '(filho:primogenito)1'" << endl;
+  cout << "Teste '{$:'primogenito'}'" << endl;
   var = var->getVar("filho");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 4 << endl;
-  cout << "Teste '(filho:primogenito)1 {(neto1:primogenito)2}'" << endl;
+  cout << "Teste '{$:'primogenito',neto1:{$:'primogenito'}}'" << endl;
   var->addChild("neto1","primogenito");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 5 << endl;
-  cout << "Teste '(filho:primogenito)1 {(neto1:primogenito)2,(neto2:caçula)2}'" << endl;
+  cout << "Teste '{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'}}'" << endl;
   var->addChild("neto2","caçula");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 6 << endl;
-  cout << "Teste '(nome:valor)0 {(filho:primogenito)1 {(neto1:primogenito)2,(neto2:caçula)2}}'" << endl;
+  cout << "Teste '{$:'valor',filho:{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'}}}'" << endl;
   var=dad;
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
 
   try{
   cout << 1 << endl;
-  cout << "Teste '(neto2:caçula)2'" << endl;
+  cout << "Teste '{$:'caçula'}'" << endl;
   var = dad->getVar("filho.neto2");
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
@@ -93,28 +93,28 @@ int main(int argc, char* argv[])
 
   try{
   cout << 1 << endl;
-  cout << "Teste '(nome:valor)0 {(filho:primogenito)1 {(neto1:primogenito)2,(neto2:caçula)2,(neto3:nenem)2}}'" << endl;
+  cout << "Teste '{$:'valor',filho:{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'},neto3:{$:'nenem'}}}'" << endl;
   dad->addVar("filho.neto3","nenem");
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 2 << endl;
-  cout << "Teste '(nome:valor)0 {(filho:primogenito)1 {(neto1:primogenito)2,(neto2:caçula)2,(neto3:nenem)2,(neto4:)2 {(bisneto1:embrião)3}}}'" << endl;
+  cout << "Teste '{$:'valor',filho:{$:'primogenito',neto1:{$:'primogenito'},neto2:{$:'caçula'},neto3:{$:'nenem'},neto4:{bisneto1:{$:'embrião'}}}}'" << endl;
   dad->addVar("filho.neto4.bisneto1","embrião");
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 
   try{
   cout << 3 << endl;
-  cout << "Teste '(doce:de_leite)0 {(filho:)1 {(alpha:)2 {(biscoito:recheio)3}}}'" << endl;
-  dad = new cVar("doce","de_leite"); dad->addVar("filho.alpha.biscoito","recheio");
+  cout << "Teste '{$:'doce_de_leite',filho:{alpha:{biscoito:{$:'recheio'}}}}'" << endl;
+  dad = new cObject("doce_de_leite"); dad->addVar("filho.alpha.biscoito","recheio");
   cout << "      '" << dad->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 }
 #endif
 
-#if NUMBER==arrayClass || NUMBER==4 || NUMBER==ALL
+#if NUMBER==cVar || NUMBER==4 || NUMBER==ALL
 {
   cout << "  @Testes com as construtoras que copiam pMatch::cVars" << endl << endl;
 
@@ -129,15 +129,15 @@ int main(int argc, char* argv[])
 
   try{
   cout << 1 << endl;
-  cout << "Teste '(:tete)0 {(a:te)1,(b:)1,(c:te)1}'" << endl;
-  var = new cVar(*pmv);
+  cout << "Teste '{$:'tete',a:{$:'te'},b:{},c:{$:'te'}}'" << endl;
+  var = new cObject(*pmv);
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
   
   try{
-  cout << 1 << endl;
-  cout << "Teste '(:tesste)0 {(a:tes)1,(b:)1,(c:ste)1}'" << endl;
-  array.match("tesste",0); var = new cVar(*pmv);
+  cout << 2 << endl;
+  cout << "Teste '{$:'tesste',a:{$:'tes'},b:{},c:{$:'ste'}}'" << endl;
+  array.match("tesste",0); var = new cObject(*pmv);
   cout << "      '" << var->str() << "'" << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl; }
 }
@@ -146,4 +146,4 @@ int main(int argc, char* argv[])
   return 0;
 }
 
-/* * * * * END TEST cVar * * * * */
+/* * * * * END TEST cObject * * * * */
