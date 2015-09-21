@@ -165,7 +165,7 @@ bool pMatch::charClass::match(char input)
  *
  *            "a", "b", "c" ... etc ...
  *
- *          O significado semantico de cada notação é o padrão para ERs.
+ *          O significado semântico de cada notação é o padrão para ERs.
  *          (foi baseado na semantica do LEX, que acredito ser padrão)
  *  
  */
@@ -279,13 +279,12 @@ char pMatch::charClass::find(string input, int& pos)
 
   string pMatch::charClass::str()
   {
-    string ret = string();
-    if(this->invert) {
-      ret += "^";
-    }
-    if(this->length() > 1) {
+    string ret = *this;
+
+    if(this->invert)
+      ret = "^" + ret;
+    if(ret.length() > 1)
       ret = "[" + ret + "]";
-    }
     return ret;
   }
 
@@ -428,7 +427,7 @@ char pMatch::charClass::find(string input, int& pos)
     string resp("");
     
     for(it = this->begin(); it!=this->end(); it++)
-      resp += *it;
+      resp += it->str();
     return resp;
   }
 
