@@ -578,6 +578,38 @@ using namespace std;
     cout << "Teste " << "Error" << endl;
     try{ resp=charClass::getClass("[abc", pos=0); cout << "      No error\n\n"; }
     catch(...){ cout << "      Error\n\n"; }
+
+    cout << "  Testando função str()" << endl << endl;
+
+    cout << 9 << endl;
+    cout << "Teste " << "a" << endl;
+    try{ cout << "      " << charClass("a").str() << endl << endl; }
+    catch(...){ cout << "      Error\n\n"; }
+
+    cout << 10 << endl;
+    cout << "Teste " << "a" << endl;
+    try{ cout << "      " << charClass("[a]").str() << endl << endl; }
+    catch(...){ cout << "      Error\n\n"; }
+
+    cout << 11 << endl;
+    cout << "Teste " << "[^a]" << endl;
+    try{ cout << "      " << charClass("[^a]").str() << endl << endl; }
+    catch(...){ cout << "      Error\n\n"; }
+
+    cout << 12 << endl;
+    cout << "Teste " << "[abc]" << endl;
+    try{ cout << "      " << charClass("[abc]").str() << endl << endl; }
+    catch(...){ cout << "      Error\n\n"; }
+
+    cout << 13 << endl;
+    cout << "Teste " << "[^abc]" << endl;
+    try{ cout << "      " << charClass("[^abc]").str() << endl << endl; }
+    catch(...){ cout << "      Error\n\n"; }
+
+    cout << 14 << endl;
+    cout << "Teste " << "[^][^\\]" << endl;
+    try{ cout << "      " << charClass("[^][^\\]").str() << endl << endl; }
+    catch(const char* c) { cout << "      Error" << c << "\n\n"; }
   }
   catch(int e)
   {
