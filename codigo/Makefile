@@ -4,7 +4,7 @@
 # options for 'CLASS' are:
 # charClass, strClass, blockClass, arrayClass, objectClass, cRotulo, banco for now.
 CLASS=charClass
-OP="ALL"
+NUMBER="ALL"
 
 CC    =  g++
 FLAGS = -Wall -std=c++11
@@ -25,7 +25,7 @@ $(BIN): $(OBJS)
 	@$(CC) $(FLAGS) $< -c
 
 number:
-	@echo "#define NUMBER $(OP)" > testes/number.h
+	@echo "#define NUMBER $(NUMBER)" > testes/number.h
 
 run: $(BIN)
 	xterm ./$(BIN)
