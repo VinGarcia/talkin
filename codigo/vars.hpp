@@ -13,16 +13,13 @@ namespace vars
   class cObject
   {
 public:
-    bool bBuild=false;
     void build(pMatch::tInterpretacao tInt);
     
     std::string valor;
 
     std::map<std::string,cObject> subvars;
-    std::vector<cObject> array;
 
-    // Denota a profundidade da variável em relação a raiz:
-    int deep=0;
+    // Indica se a variável está definida:
     bool defined=true;
     
     // A variável abaixo é usada para denotar
@@ -32,9 +29,7 @@ public:
     static cObject undefined;
     static cObject null;
 
-    // Construtora utilizada nas recursões para construir
-    // uma arvore de variáveis com base em pMatch::cObject:
-    cObject(pMatch::cVar var, int deep);
+    void checkAddr(std::string& str);
 
     public:
     // constroi um objeto vazio
@@ -43,7 +38,7 @@ public:
 
     // Constroi um objeto do ambiente com base em uma variável do pMatch.
     cObject(pMatch::cVar var);
-    cObject(pMatch::tInterpretacao);
+    cObject(pMatch::tInterpretacao tInt);
     cObject(const char* valor);
     cObject(std::string valor);
 
