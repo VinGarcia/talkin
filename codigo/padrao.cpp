@@ -740,6 +740,7 @@ char pMatch::charClass::find(string input, int& pos)
   void pMatch::blockClass::leLista(string str)
   {
     int i=0;
+    static charClass delimiter(",");
     
     if(str.empty())
       throw "Lista de objetos vazia!: pMatch::blockClass()";
@@ -757,15 +758,12 @@ char pMatch::charClass::find(string input, int& pos)
       else
         // Se encontrar um objectClass:
         lista.push_back(new objectClass(str, i));
-      
+
       // Caso tenha-se chegado ao fim da lista retorne:
-      if(str[i] == '\0') return;
+      if(delimiter.find(str, i) == '\0')
+        return;
       else
-      {
-        while( str[i]!=',' && str[i] != '\0') i++;
-        if(str[i] == '\0') return;
         i++;
-      }
     }
   }
   
@@ -859,14 +857,15 @@ char pMatch::charClass::find(string input, int& pos)
     // Fim dos testes de validade da entrada.
   }
   
-  // (fecho é o indice do fecha parentesis)
-  void pMatch::blockClass::build(string str, int fecho)
+  // (fimIdx é o indice do fecha parentesis)
+  void pMatch::blockClass::build(string str, int fimIdx)
   {
     int len = str.length();
     
     if(str[len-1]=='*') this->repeater = true;
     
-    // Normaliza str para um padrão único:
+    // Normaliza str para um padrão único
+    // removendo o caractere de término:
     if(str[len-1]==' ' || str[len-1]==';' || str[len-1]=='*')
     {
       len--;
@@ -874,10 +873,10 @@ char pMatch::charClass::find(string input, int& pos)
     }
     
     // Le a lista de objetos e a salva no array this->lista.
-    leLista(str.substr(1,fecho-1));
+    leLista(str.substr(1,fimIdx-1));
     
     // Le o nome e o armazena:
-    this->block_name = str.substr(fecho+1,len-fecho-1);
+    this->block_name = str.substr(fimIdx+1,len-fimIdx-1);
     
     // Nomeia a variável:
     this->var.nome = this->block_name;
@@ -1125,12 +1124,15 @@ cout << "var: " << var.str() << endl;
 
   void pMatch::objectClass::validate(string str)
   {
+    static charClass invalid("[:(),]");
     int pos=0;
-    char c;
+
+    if(str.length() == 0)
+      throw "Um objectClass não pode ter nome vazio! pMatch::objectClass::validate()";
     
     // Verifica se há algum caractere inválido no nome:
-    c = charClass("[:(),]").find(str,pos);
-    if(c) throw "Caractere inválido no nome!: pMatch::objectClass()";
+    if( invalid.find(str,pos) )
+      throw "Caractere inválido no nome!: pMatch::objectClass()";
   }
   
   void pMatch::objectClass::build(string str)
@@ -1179,16 +1181,20 @@ cout << "var: " << var.str() << endl;
   // após o objeto.
   pMatch::objectClass::objectClass(string str, int& pos) : string()
   {
+    static charClass delimiter("[,)]");
+    string nome;
+
     // Marque a posição de inicio:
     int inicio = pos;
     
     // Encontra o final do nome do objeto:
-    charClass("[,)]").find(str, pos);
+    delimiter.find(str, pos);
     
-    str = str.substr(inicio,pos-inicio);
+    // Extraia o nome do objectClass:
+    nome = str.substr(inicio,pos-inicio);
     
-    validate(str);
-    build(str);
+    validate(nome);
+    build(nome);
     
     // Se str[pos] != '\0'
     if(str[pos]) pos++;
