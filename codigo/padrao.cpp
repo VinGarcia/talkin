@@ -740,7 +740,7 @@ char pMatch::charClass::find(string input, int& pos)
   void pMatch::blockClass::leLista(string str)
   {
     int i=0;
-    static charClass delimiter(",");
+    static charClass delimiter("[,\"a-zA-Z0-9_]");
     
     if(str.empty())
       throw "Lista de objetos vazia!: pMatch::blockClass()";
@@ -763,7 +763,8 @@ char pMatch::charClass::find(string input, int& pos)
       if(delimiter.find(str, i) == '\0')
         return;
       else
-        i++;
+        if(str[i]==',')
+          i++;
     }
   }
   
@@ -1218,7 +1219,7 @@ cout << "var: " << var.str() << endl;
     
     bool resp = banco::rotulos[*this].match(str,pos);
     
-    this->var.lInt.splice(var.lInt.end(), banco::rotulos[*this].var.lInt);
+    this->var.lInt.splice(this->var.lInt.end(), banco::rotulos[*this].var.lInt);
     this->match_word.splice(match_word.end(), banco::rotulos[*this].getMatch());
     
     // Apaga os nomes das variáveis para evitar que sejam lidas.
