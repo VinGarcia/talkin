@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
   
   try{
   cout << 3 << endl;
-  cout << "Teste \"testando\"" << endl;
+  cout << "Teste \"testando|test\"" << endl;
   oc.match("testestandoagora",3);
   cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
   }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
