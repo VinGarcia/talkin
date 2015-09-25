@@ -7,7 +7,7 @@ CLASS=charClass
 NUMBER="ALL"
 
 CC    =  g++
-FLAGS = -Wall -std=c++11
+FLAGS = -Wall -std=c++11 -g
 OBJS  =  ambiente.o padrao.o banco.o vars.o
 BIN  =  talkin
 MAIN  =  main.cpp
