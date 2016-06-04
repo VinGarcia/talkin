@@ -94,8 +94,7 @@ namespace pMatch
   
   // Classe que representa uma variável.
   // Considerado testado por uso extenso em outros modulos.
-  class cVar
-  {
+  class cVar {
     public:
     // Nome da variável:
     std::string nome;
@@ -106,21 +105,21 @@ namespace pMatch
     public:
     cVar() {}
     // Considerado testado por uso extenso em outros modulos.
-    cVar(std::string nome) {this->nome=nome;}
+    cVar(std::string nome) { this->nome=nome; }
     // Considerado testado por uso extenso em outros modulos.
-    cVar(std::string nome, std::list<tInterpretacao>::iterator it)
-    { this->nome=nome; lInt.push_back(*it); }
+    cVar(std::string nome, std::list<tInterpretacao>::iterator it) {
+      this->nome=nome;
+      lInt.push_back(*it);
+    }
     
-    std::string str(){
+    std::string str() {
       using namespace std;
       string words, resp;
       list<tInterpretacao>::iterator itI=lInt.begin();
       list<cVar>::iterator itV;
-      if(itI != lInt.end())
-      {
+      if(itI != lInt.end()) {
         words += lInt.front().word;
-        if(!itI->var.empty())
-        {
+        if(!itI->var.empty()) {
           words += "{";
           for(itV=itI->var.begin(); itV != itI->var.end(); itV++)
             words += itV->str() + "; ";
@@ -130,11 +129,9 @@ namespace pMatch
         itI++;
       }
       
-      for(; itI != lInt.end(); itI++)
-      {
+      for(; itI != lInt.end(); itI++) {
         words += "|" + itI->word;
-        if(!itI->var.empty())
-        {
+        if(!itI->var.empty()) {
           words += "{";
           for(itV=itI->var.begin(); itV != itI->var.end(); itV++)
             words += itV->str() + "; ";
@@ -152,8 +149,7 @@ namespace pMatch
   
   // Not going to be tested
   // Considerado testado por uso extenso em outros modulos.
-  class matcher
-  {
+  class matcher {
     public:
     // Variável de escopo:
     cVar var;
@@ -161,20 +157,19 @@ namespace pMatch
     
     public:
     // Retorna a última string encontrada pelo match();
-    lWord getMatch(){return this->match_word;}
+    lWord getMatch() { return this->match_word; }
     virtual std::string str()=0;
     
     virtual bool  match   (std::string input, int pos)=0;
     //virtual tWord find    (std::string input, int pos)=0;
     //virtual tWord getClass(std::string, int pos) = 0;
-    ~matcher(){}
+    ~matcher() {}
   };
   
   // Testado
-  class strClass : public std::list<charClass>, public matcher
-  {
+  class strClass : public std::list<charClass>, public matcher {
     public:
-    strClass(){}
+    strClass() {}
     strClass(const char* str);
     strClass(std::string str);
     
@@ -194,8 +189,7 @@ namespace pMatch
   // match é obtido se o texto der match em todos da sequencia.
   // onde cada parte do texto deve dar match com um da sequencia.
   // Testado
-  class arrayClass : public matcher
-  {
+  class arrayClass : public matcher {
     std::list<matcher*> lista;
     
     void build(std::string str);
@@ -204,10 +198,10 @@ namespace pMatch
     sub_match(std::string, int pos, std::list<matcher*>::iterator it);
     
     public:
-    arrayClass(){}
+    arrayClass() {}
     arrayClass(const char* str);
     arrayClass(std::string str);
-    arrayClass(const arrayClass& array){(*this)=array;}
+    arrayClass(const arrayClass& array) { (*this) = array; }
     
     // Decodifica uma string tranformando-a em um arrayClass.
     // A string recebida deve estar entre aspas.
@@ -225,8 +219,7 @@ namespace pMatch
   // Uma classe bloco contém um conjunto de arrayClasse`s e objectClasse`s
   // match é obtido se o texto der match em ao menos um do conjunto.
   // Testado
-  class blockClass : public matcher
-  {
+  class blockClass : public matcher {
     bool repeater=false;
     // Vetor com os possíveis padrões da classe bloco.
     std::vector<matcher*> lista;
@@ -245,14 +238,14 @@ namespace pMatch
     std::list<tInterpretacao> sub_match(std::string str, int pos, int rep_pos);
 
     public:
-    std::vector<matcher*> getLista(){ return this->lista; }
-    std::string nome(){ return block_name; }
+    std::vector<matcher*> getLista() { return this->lista; }
+    std::string nome() { return block_name; }
     
     public:
-    blockClass(){};
+    blockClass() {}
     blockClass(const char* str);
     blockClass(std::string str);
-    blockClass(const blockClass& block){(*this)=block;}
+    blockClass(const blockClass& block) { (*this) = block; }
     
     // Essa construtora percorre uma string e extraí dela um blockClass.
     // Caso não seja possível é lançado um erro.
@@ -267,24 +260,23 @@ namespace pMatch
   };
   
   // Ainda não testado!
-  class objectClass : public matcher, public std::string
-  {
+  class objectClass : public matcher, public std::string {
     void validate(std::string);
     void build(std::string);
     
     public:
-    objectClass():std::string(){}
+    objectClass():std::string() {}
     objectClass(const char* nome);
     objectClass(std::string nome);
-    objectClass(const objectClass& object){(*this)=object;}
+    objectClass(const objectClass& object) { (*this) = object; }
     
     objectClass(std::string nome, int& pos);
     
     bool match(std::string, int pos);
     // TODO: fazer o código do find
-    tWord find(std::string, int pos){ return tWord("",0); }
+    tWord find(std::string, int pos) { return tWord("",0); }
    
-    std::string str(){ return *this; }
+    std::string str() { return *this; }
   };
 }
 
