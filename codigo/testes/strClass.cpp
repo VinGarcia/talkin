@@ -2,19 +2,21 @@
 #include <iostream>
 #include "number.h"
 
+#include "catch.hpp"
+#include "catch_lower.hpp"
+
 using namespace std;
 
 /* * * * * START TEST strClass * * * * */
 
-int main(int argc, char* argv[])
-{
+TEST_CASE("strClass", "[strClass]") {
 
-/*
- * Teste do strClass
- */
+  /*
+   * Teste do strClass
+   */
 
-#if NUMBER==strClass || NUMBER==1 || NUMBER==ALL
-{
+  #if NUMBER==strClass || NUMBER==1 || NUMBER==ALL
+  {
 
     using namespace pMatch;
     
@@ -30,42 +32,42 @@ int main(int argc, char* argv[])
     cout << "Testando o formato: \"[a]bc[--]\"" << endl << endl;
     
     cout << 1 << endl;
-    cout << "teste [a]bc[--]\n";
+    cout << "teste abc[--]\n";
     sclass = new strClass("[a]bc[--]"); it = sclass->begin();
     cout << "      ";
-    cout << *it; it++; cout << *it; it++; cout << *it; it++; cout << *it;
+    cout << it->str(); it++; cout << it->str(); it++; cout << it->str(); it++; cout << it->str();
     cout << endl << endl;
   
     cout << 2 << endl;
-    cout << "teste [a]bc[--]\n";
+    cout << "teste abc[--]\n";
     sclass = new strClass(s); it = sclass->begin();
     cout << "      ";
-    cout << *it; it++; cout << *it; it++; cout << *it; it++; cout << *it;
+    cout << it->str(); it++; cout << it->str(); it++; cout << it->str(); it++; cout << it->str();
     cout << endl << endl;
   
     cout << 3 << endl;
-    cout << "teste [a]bc[--]\n";
+    cout << "teste abc[--]\n";
     strClass sclass1("[a]bc[--]"); it = sclass1.begin();
     cout << "      ";
-    cout << *it; it++; cout << *it; it++; cout << *it; it++; cout << *it;
+    cout << it->str(); it++; cout << it->str(); it++; cout << it->str(); it++; cout << it->str();
     cout << endl << endl;
   
     cout << 4 << endl;
-    cout << "teste [a]bc[--]\n";
+    cout << "teste abc[--]\n";
     strClass sclass2("[a]bc[--]"); it = sclass2.begin();
     cout << "      ";
-    cout << *it; it++; cout << *it; it++; cout << *it; it++; cout << *it;
+    cout << it->str(); it++; cout << it->str(); it++; cout << it->str(); it++; cout << it->str();
     cout << endl << endl;
   
-}
-#endif
-  
-/*
- * Teste do strClass::match()
- */
+  }
+  #endif
+    
+  /*
+   * Teste do strClass::match()
+   */
 
-#if NUMBER==match || NUMBER==2 || NUMBER==ALL
-{
+  #if NUMBER==match || NUMBER==2 || NUMBER==ALL
+  {
     using namespace pMatch;
     
     string s("testando com afeto");
@@ -109,15 +111,15 @@ int main(int argc, char* argv[])
     b = strClass("[^t]a").match(s, pos=12);
     cout << "      " << b << endl<<endl;
     
-}
-#endif
- 
-/*
- * Teste do strClass::find()
- *
- */
-#if NUMBER==find || NUMBER==3 || NUMBER==ALL
-{
+  }
+  #endif
+   
+  /*
+   * Teste do strClass::find()
+   *
+   */
+  #if NUMBER==find || NUMBER==3 || NUMBER==ALL
+  {
 
     using namespace pMatch;
     
@@ -181,15 +183,15 @@ int main(int argc, char* argv[])
     cout << "teste \"\"-21\n";
     str = strClass("com").find(s, pos=14);
     cout << " str: \"" << str << "\"-" << str.start() << endl<<endl;
+      
+  }
+  #endif
     
-}
-#endif
-  
-/*
- * Teste do strClass::getClass
- */
-#if NUMBER==getClass || NUMBER==4 || NUMBER==ALL
-{
+  /*
+   * Teste do strClass::getClass
+   */
+  #if NUMBER==getClass || NUMBER==4 || NUMBER==ALL
+  {
     using namespace pMatch;
     
     strClass s;
@@ -241,10 +243,8 @@ int main(int argc, char* argv[])
     try{s = strClass::getClass("feijoada\\", pos=0); cout<<"      ok";}
     catch(...){cout<<"      error";} cout<< endl<<endl;
 
-}
-#endif
-    
-  return 0;
+  }
+  #endif
 }
   
 /* * * * * END TEST strClass * * * * */
