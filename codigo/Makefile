@@ -33,13 +33,15 @@ run: $(BIN)
 safe_run: $(BIN)
 	xterm ./$(BIN)
 
-test: number
+testes/catch.o:
+	g++ $(FLAGS) -c testes/catch.cpp -o testes/catch.o
+
+test: number $(OBJS) testes/catch.o
 	@rm -f Test.tmp
-	@g++ ambiente.cpp padrao.cpp vars.cpp banco.cpp testes/$(CLASS).cpp -o Test.tmp -Wall -std=c++11
+	@g++ $(FLAGS) $(OBJS) testes/catch.o testes/$(CLASS).cpp -o Test.tmp
 	./Test.tmp
 
 clean:
 	@rm -f $(BIN) Test.tmp *.o
 	@export TERM=xterm
 	@clear
-
