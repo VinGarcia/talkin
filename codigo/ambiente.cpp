@@ -8,7 +8,9 @@ using namespace std;
 using namespace ambiente;
 
 // Variáveis globais
-vars::cObject ambiente::global;
+vars::cObject* ambiente::global = new vars::cObject();
+Scope ambiente::scope(ambiente::global);
+
 // Drivers do talkin:
 std::map<std::string, driver*> ambiente::drivers;
 

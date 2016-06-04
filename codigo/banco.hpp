@@ -5,11 +5,13 @@
 
 #include "padrao.hpp"
 #include "vars.hpp"
+#include "exp-parser/shunting-yard.h" // for `calculate` class
 
 #ifndef BANCO_DE_INSTRUCOES
 #define BANCO_DE_INSTRUCOES
 
   // Guarda as variáveis locais para a função 'executa'
+  // TODO: Mover isso pra dentro da função 'executa'
   extern vars::cObject local;
 
   class cInst;
@@ -96,87 +98,32 @@
     }
   };
   
-  enum eTipo { VAR, STR, NUM, BOOL, OP };
-
-  // Uma expressão será composta por items que incluem:
-  // OP - operadores (+,-,*,/,!,==,!=,<=,>=)
-  // NUM - Números literais ({[0-9]+.?} | {.[0-9]+} | {[0-9]+.[0-9]+})
-  // STR - String ( " string " )
-  // VAR - Referência de variável (var1, var2, _var3, etc...)
-  typedef std::pair<eTipo,std::string> expItem;
-  
-  // O struct abaixo armazena uma expressão em notação polonesa reversa.
-  class cExpressao : public std::list<expItem>
+  class cExpressao
   {
-    // A lista dessa classe contém os operandos e os operadores.
-    // A operação deles deve seguir a ordem da notação polonesa reversa.
-    // TODO: Atualmente ele só lê expressões do tipo: a + b com 2 operandos.
-    //       Ele deve ser capaz de ler expressões genéricas no futuro.
+    // Used to keep a readable representation of the
+    // expression. (not on RPN) for str() function.
+    std::string repr;
+    calculator exp;
 
-    std::map<std::string,int> opMap = {
-      {"!",  3},
-      {"*",  2},
-      {"&&", 2},
-      {"/",  2},
-      {"+",  1},
-      {"-",  1},
-      {"||", 1},
-      {"==", 0},
-      {"!=", 0},
-      {"<",  0},
-      {">",  0},
-      {"<=", 0},
-      {">=", 0},
-    };
+    void build_repr(const std::string& str);
+  public:
+    cExpressao() : exp() {}
 
-    // Matcher para identificar operadores:
-    pMatch::charClass opClass = pMatch::charClass("[-!*&/+|=!<>]");
-    
-    expItem getOperando(std::string exp, int& pos);
-    expItem getOperador(std::string exp, int& pos);
-    void build(std::string exp);
-    
-    public:
-    
-    cExpressao(){}
-    cExpressao(std::string exp, int& pos);
-    
-    // Avalia uma expressão e retorna o resultado calculado:
-    std::string eval(vars::cObject local, vars::cObject global);
-    
-    private:
-    // Funções que representam os operadores:
-    std::string op_equal(std::string left, std::string right);
-    std::string op_diff(std::string left, std::string right);
-    std::string op_menor(std::string left, std::string right);
-    std::string op_maior(std::string left, std::string right);
-    std::string op_and(std::string left, std::string right);
-    std::string op_or(std::string left, std::string right);
-    std::string op_sum(std::string left, std::string right);
-    std::string op_sub(std::string left, std::string right);
-    std::string op_mul(std::string left, std::string right);
-    std::string op_div(std::string left, std::string right);
-    std::string op_not(std::string str);
+    // Used to parse out a expression from a string.
+    cExpressao(std::string exp, int& pos,
+        const std::string& delim=";,", Scope scope= Scope());
 
-    // Verifica se a string contém um número (inteiro ou real)
-    bool numeric(std::string str);
-
-    // Converte um float para uma string:
-    std::string float_to_str(double number);
+    packToken eval(Scope scope) {
+      return exp.eval(scope);
+    }
     
-    public:
+  public:
+    std::string str() {
+      return repr;
+    }
+
     std::string str_raw() {
-      std::string resp;
-      for(auto a : *this) {
-        //std::cout << a.first << std::endl;
-        if(a.first == STR)
-          resp += '"' + a.second + "\" ";
-        else
-          resp += a.second + " ";
-      }
-      // Remove o último espaço:
-      if(this->size()) resp.pop_back();
-      return resp;
+      return exp.str();
     }
   };
   
@@ -187,10 +134,7 @@
     // A lista abaixo contém as expressões do contexto,
     // por exemplo: " a = b; b < 3; c > 4 " contém 3 expressões.
     std::list<cExpressao> expList;
-    
-    // TODO: Remover essa funcao daqui e move-la para o cExpressao.
-    // Atualmente ela está solta no .cpp sem associacao com classe.
-    //void validate_addr(std::string, int& pos);
+
     void readOperand(std::string contexto, int& pos);
     void validate(std::string);
     void build(std::string);
@@ -202,14 +146,15 @@
     
     // Avalia o contexto com base nas variáveis globais e locais.
     // Retorna true caso o contexto seja verdadeiro segundo as variáveis dadas.
-    bool eval(vars::cObject& local, vars::cObject& global);
+    bool eval(Scope local);
     
     bool empty(){ return expList.empty(); }
     
     std::string str(){
       std::string resp;
       for(auto a : expList)
-        resp += a.str_raw() + "; ";
+        resp += a.str() + ", ";
+      // cout << "a.str_raw(): '" << expList.head().str_raw() <<  "'" << endl;
       // Remove os dois últimos caracteres:
       resp.pop_back();
       resp.pop_back();
@@ -302,7 +247,7 @@
     // TODO: Adicionar operadores < > = para o contexto:
     static pMatch::charClass mContexto;
     static pMatch::charClass mSignificado;
-    static pMatch::charClass notBlank;
+    static pMatch::charClass isBlank;
     
     // Usados pela build e pela validate:
     
@@ -318,7 +263,7 @@
     short fimSignificado=-1;
     
     // TODO: Adicionar a validação do significado no formato:
-    // (#!stdout:)? (texto|'''texto'''|"""texto""") ;
+    // (#!stdout:)? (texto|\'texto\'|\"texto\") ;
     void validate(std::string inst);
     
     void buildRotulo(std::string rotulo);
@@ -340,11 +285,12 @@
 
 // * * * * * Funções de uso das instruções: * * * * *
   
-  bool avaliaContexto(
-    std::map<std::string, vars::cObject> globalVars,
-    pMatch::lVar localVars,
-    std::list<std::string> contextos
-  );
+  // TODO: Remover esse prototipo:
+  // bool avaliaContexto(
+  //   std::map<std::string, vars::cObject> globalVars,
+  //   pMatch::lVar localVars,
+  //   std::list<std::string> contextos
+  // );
   
   void executa(cInst inst, pMatch::tInterpretacao);
 

@@ -2,15 +2,13 @@
 #include "ambiente.hpp"
 #include <stdlib.h>
 #include <sstream>
+#include <cstring>
 
 using namespace std;
 using namespace pMatch;
 
-vars::cObject local;
-
 // charClasses utilizados para lidar com caracteres em branco:
-charClass blank = charClass("[ \t\n]");
-charClass notBlank = charClass("[^ \t\n]");
+charClass isBlank = charClass("[ \t\n]");
 
 // Last id é o último ID adicionado no banco.
 // Valor inicial = 0.
@@ -28,27 +26,23 @@ std::map<std::string, cRotulo> banco::rotulos;
 
 /* * * * * START banco * * * * */
 
-cInst* banco::addInst(string inst, int level)
-{
+cInst* banco::addInst(string inst, int level) {
   int ID = getUniqueID();
   instrucoes[level][ID] = cInst(inst, ID);
   return &(instrucoes[level][ID]);
 }
 
-cInst* banco::addInst(string inst)
-{
+cInst* banco::addInst(string inst) {
   int ID = getUniqueID();
   instrucoes[def_level][ID] = cInst(inst, ID);
   return &(instrucoes[def_level][ID]);
 }
 
-pair<cInst*, int> banco::getInst(int ID)
-{
+pair<cInst*, int> banco::getInst(int ID) {
   int i;
   bool found=false;
   for(i=def_level; i>=0; i--)
-    if(instrucoes[i].count(ID))
-    {
+    if(instrucoes[i].count(ID)) {
       found=true;
       break;
     }
@@ -72,13 +66,10 @@ void banco::remLast()
 }
 
 // Retorna as instruções do banco em uma única string.
-string banco::str()
-{
+string banco::str() {
   std::string str;
-  for(int i=0; (unsigned)i<instrucoes.size(); i++)
-  {
-    for(auto j=instrucoes[i].begin(); j!=instrucoes[i].end(); j++)
-    {
+  for(int i=0; (unsigned)i<instrucoes.size(); i++) {
+    for(auto j=instrucoes[i].begin(); j!=instrucoes[i].end(); j++) {
       std::ostringstream oss;
       oss <<"inst["<< i <<"]["<< j->first <<"]: «"<<j->second.str() << "»\n";
       str += oss.str();
@@ -90,13 +81,10 @@ string banco::str()
 }
 
 // Retorna as instruções do banco em uma lista de strings.
-list<string> banco::strList()
-{
+list<string> banco::strList() {
   std::list<std::string> list;
-  for(int i=0; (unsigned)i<instrucoes.size(); i++)
-  {
-    for(auto j=instrucoes[i].begin(); j!=instrucoes[i].end(); j++)
-    {
+  for(int i=0; (unsigned)i<instrucoes.size(); i++) {
+    for(auto j=instrucoes[i].begin(); j!=instrucoes[i].end(); j++) {
       std::ostringstream oss;
       oss <<"inst["<< i <<"]["<< j->first <<"]: «"<<j->second.str() << "»";
       list.push_back(oss.str());
@@ -106,12 +94,10 @@ list<string> banco::strList()
 }
 
 // Retorna a lista de rotulos em formato de string de lista.
-list<string> banco::rotList()
-{
+list<string> banco::rotList() {
   list<string> resp;
   
-  for(auto& rot : rotulos)
-  {
+  for(auto& rot : rotulos) {
     resp.push_back(rot.second.str());
   }
   return resp;
@@ -136,13 +122,11 @@ bool cInst::match(string str)
   if(!bMatch) return false;
   
   // Para cada interpretação possível, verifique se o contexto é válido:
-  for(auto j=var.lInt.begin(); j!= var.lInt.end(); )
-  {
+  for(auto j=var.lInt.begin(); j!= var.lInt.end(); ) {
     auto v = vars::cObject(*j);
     // Se o contexto não for válido:
     //if(contexto.eval(vars::cObject(j->var),ambiente::global))
-    if(!contexto.eval(v,ambiente::global))
-    {
+    if(!contexto.eval(&v)) {
       j=var.lInt.erase(j);
       continue;
     }
@@ -165,8 +149,7 @@ std::string cInst::str()
   list<cSignificado>::iterator sig_it;
   
   // Adiciona os rotulos na resposta:
-  if(!lRotulos.empty())
-  {
+  if(!lRotulos.empty()) {
     for(str_it=lRotulos.begin(); str_it!=lRotulos.end(); str_it++)
       resp+=(*str_it) + ", ";
     resp[resp.length()-2] = ':';
@@ -176,14 +159,12 @@ std::string cInst::str()
   resp += padrao.str();
 
   // Adiciona o contexto na resposta:
-  if(!contexto.empty())
-  {
+  if(!contexto.empty()) {
     resp += " - ";
     resp += contexto.str();
   }
   
-  if(!lSignificado.empty())
-  {
+  if(!lSignificado.empty()) {
     resp += " => ";
     for(sig_it=lSignificado.begin(); sig_it!=lSignificado.end(); sig_it++)
       resp += sig_it->str() + ' ';
@@ -225,13 +206,10 @@ void banco::execInst(string texto)
   // Casamento de padrao:
 
   // Encontra as interpretações possíveis:
-  for(int level = def_level; level>=0 && bMatch==false; level--)
-  {
-    for(auto& i : instrucoes[level])
-    {
+  for(int level = def_level; level>=0 && bMatch==false; level--) {
+    for(auto& i : instrucoes[level]) {
       // Se houver match:
-      if(i.second.match(texto))
-      {
+      if(i.second.match(texto)) {
         // Marque que houve match:
         bMatch = true;
         // Guarde a instrução que recebeu o match:
@@ -239,7 +217,6 @@ void banco::execInst(string texto)
         // E colete a variável associada (que contem as interpretacoes):
         escopo.push_back(i.second.var);
         // Incremente o contador de matchs:
-  // cout << "instrucao: " << i.second.str() << endl;
       }
     }
   }
@@ -271,19 +248,14 @@ void banco::execInst(string texto)
 
       cout << "    0 »» cancel\n" << endl;
     
-    for(j=0; (unsigned)j<inst.size(); j++)
-    {
-      if(escopo[j].lInt.size()==1 && escopo[j].lInt.front().var.size()==0)
-      {
+    for(j=0; (unsigned)j<inst.size(); j++) {
+      if(escopo[j].lInt.size()==1 && escopo[j].lInt.front().var.size()==0) {
         index.push_back( {&escopo[j].lInt.front(), &(inst[j])} );
         cout << "    " << ++escolha << " »» " << inst[j].str() << endl;
-      }
-      else
-      {
+      } else {
         cout << "  " << inst[j].str() << endl;
         
-        for(auto& k : escopo[j].lInt)
-        {
+        for(auto& k : escopo[j].lInt) {
           index.push_back ( {&k, &(inst[j])} );
           cout << "    " << ++escolha << " »» " << lVar_to_str(k.var) << endl;
         }
@@ -310,9 +282,7 @@ void banco::execInst(string texto)
       escopo_escolhido = *(index[escolha].first);
       inst_escolhida = *(index[escolha].second);
     }
-  }
-  else
-  {
+  } else {
     escopo_escolhido = escopo[0].lInt.front();
     inst_escolhida = inst[0];
   }
@@ -420,7 +390,7 @@ bool cRotulo::match(string str, int pos)
       }
       
       // Verifique se o intervalo coberto não está em branco:
-      notBlank.find(inst, antes);
+      isBlank.ifind(inst, antes);
       if(antes==pos)
         throw "Rotulo vazio na instrução! cInst::cInst()";
       
@@ -546,7 +516,7 @@ bool cRotulo::match(string str, int pos)
       }
       
       // Verifique se não há um item em branco na lista de contextos:
-      notBlank.find(inst, antes);
+      isBlank.ifind(inst, antes);
       if(antes==pos)
         throw "item em branco no Contexto!: cInst::cInst()";
       
@@ -590,7 +560,7 @@ bool cRotulo::match(string str, int pos)
       
       if(!inst[pos]) break;
       
-      notBlank.find(inst, antes);
+      isBlank.ifind(inst, antes);
       if(antes==pos)
         throw "Item em branco no significado!: cInst::cInst()";
       
@@ -609,7 +579,7 @@ bool cRotulo::match(string str, int pos)
     for(pos1=0; (unsigned)pos1<rotulo.length(); pos1++)
     {
       // Descarte os caracteres em branco ao inicio:
-      notBlank.find(rotulo, pos1);
+      isBlank.ifind(rotulo, pos1);
       
       // Encontre o próximo separador do rotulo:
       mRotulo.find(rotulo, pos2=pos1);
@@ -619,7 +589,7 @@ bool cRotulo::match(string str, int pos)
       // Coleto o nome do rotulo removendo espaços repetidos:
       for(; pos1<pos2; pos1++)
       {
-        if(!notBlank.match(rotulo[pos1]))
+        if(!isBlank.imatch(rotulo[pos1]))
         {
           if(!lastBlank) str += ' ';
           lastBlank=true;
@@ -651,10 +621,10 @@ bool cRotulo::match(string str, int pos)
     int fim, ini;
     
     // Descarte os espaços no inicio:
-    notBlank.find(padrao,ini=0);
+    isBlank.ifind(padrao,ini=0);
     
     // Descarte os espaços no final:
-    for(fim=padrao.length()-1; !notBlank.match(padrao[fim]); fim--);
+    for(fim=padrao.length()-1; !isBlank.imatch(padrao[fim]); fim--);
     
     if(padrao[ini]!='"')
       this->padrao = pMatch::arrayClass(
@@ -675,7 +645,7 @@ bool cRotulo::match(string str, int pos)
     string str=string("");
     
     // Encontre o fim do último contexto.
-    for(fpos=contexto.length()-1; !notBlank.match(contexto[fpos]); fpos--);
+    for(fpos=contexto.length()-1; !isBlank.imatch(contexto[fpos]); fpos--);
     fpos++;
     
     // Note que o loop abaixo roda uma última vez para i==fpos
@@ -716,26 +686,26 @@ bool cRotulo::match(string str, int pos)
     bool aspas=false;
     
     // Encontra o primeiro caractere não branco:
-    notBlank.find(significado,i=pos);
+    isBlank.ifind(significado,i=pos);
     
     // Se houver uma declaração de driver:
     if(significado[i]=='#' && significado[i+1]=='!')
     {
       // Encontra o inicio do nome do driver:
-      notBlank.find(significado, i+=2); ini=i;
+      isBlank.ifind(significado, i+=2); ini=i;
       
       // Encontra o fim do nome do driver:
-      while(notBlank.match(significado, i) && significado[i]!=':') i++;
+      while(isBlank.imatch(significado, i) && significado[i]!=':') i++;
       
       // Grava o driver na classe:
       this->driver = significado.substr(ini, i-(ini));
       
       // Encontra o ':':
       if(significado[i]!=':')
-        notBlank.find(significado, ++i);
+        isBlank.ifind(significado, ++i);
       
       // Encontra o inicio do texto:
-      notBlank.find(significado, ++i);
+      isBlank.ifind(significado, ++i);
     }
     
     // Se o significado começar com aspas:
@@ -750,7 +720,7 @@ bool cRotulo::match(string str, int pos)
       // Encontre a última letra do texto desconsiderando o ';'
       for(fimTexto=significado.size()-1; ; fimTexto--)
         // Se houver uma letra não-branca:
-        if( notBlank.match(significado[fimTexto]) )
+        if( isBlank.imatch(significado[fimTexto]) )
         {
           // Se for um ';' não precedido por '\\'
           // (isso faria dele um caractere comum): continue,
@@ -769,7 +739,7 @@ bool cRotulo::match(string str, int pos)
         for(i++; significado[i]!=';'; i++)
         {
           // Ignore quaisquer espaços em branco:
-          if(!notBlank.match(significado[i])) continue;
+          if(!isBlank.imatch(significado[i])) continue;
           // Preencha o nome da variável:
           var += significado[i];
         }
@@ -784,14 +754,14 @@ bool cRotulo::match(string str, int pos)
         // Pule a aspas:
         i++;
         // Encontre o ';' final (se houver):
-        notBlank.find(significado, i);
+        isBlank.ifind(significado, i);
         // E quebre o loop:
         break;
       }
       else if(i==fimTexto+1)
       {
         // Encontre o ';' final (se houver):
-        notBlank.find(significado, i);
+        isBlank.ifind(significado, i);
         // E quebre o loop:
         break;
       }
@@ -816,7 +786,7 @@ bool cRotulo::match(string str, int pos)
     for(i=0; (unsigned)i<significado.length(); )
     {
       // Caso não hajam mais letras até o fim da string:
-      if(notBlank.find(significado,i)=='\0') break;
+      if(isBlank.ifind(significado,i)=='\0') break;
       lSignificado.push_back(cSignificado(significado, i));
     }
   }
@@ -860,9 +830,8 @@ bool cRotulo::match(string str, int pos)
   // TODO: Adicionar o operador @ para o contexto:
   // TODO: Adicionar operadores < > = para o contexto:
   pMatch::charClass cInst::mSignificado = pMatch::charClass(";");
-  pMatch::charClass cInst::notBlank     = pMatch::charClass("[^ \t\n]");
-  pMatch::charClass
-  cInst::mContexto = pMatch::charClass("[^][a-zA-Z0-9._ \t\n]");
+  pMatch::charClass cInst::mContexto    = pMatch::charClass("[^][a-zA-Z0-9._ \t\n]");
+  pMatch::charClass cInst::isBlank      = pMatch::charClass("[ \t\n]");
 
   cInst::cInst() {}
 
@@ -882,52 +851,38 @@ bool cRotulo::match(string str, int pos)
 // TODO: mover esse validate addr para dentro da classe cExpressao
 void validate_addr(std::string contexto, int& pos)
 {
-  // O código abaixo pode ser resumido na seguintes duas linhas:
-  /*
-  if(arrayClass(" *[A-Za-z_][a-zA-Z0-9_]* *(\". *[a-zA-Z_][a-zA-Z0-9_]*\",\"\\[[0-9][0-9]*]\")* *(\"[=><]\",\"\")").match(contexto)) return;
-  else throw "Error!";
-  */
-  // Obviamente não vou usar isso porque fica bem menos claro, e menos eficiente.
-  
   bool bArray=false;
-  auto mVar = charClass("[a-zA-Z0-9_]");
+  static charClass isName("[a-zA-Z0-9_]");
   
   // Ignore quaisquer caracteres em branco:
-  notBlank.find(contexto,pos);
+  isBlank.ifind(contexto,pos);
   
   // Se o primeiro caractere não for válido:
   if(!charClass("[a-zA-Z_]").match(contexto[pos]))
     throw "Nome de variável iniciado com caractere inválido!, use apenas [a-zA-Z_]: validate_addr()";
 
-//cout << "contexto: \"" << contexto << '"' << endl;
-//cout << "pos: " << pos << endl;
-//cout << "bArray: " << bArray << endl;
-  
   // Inicie a validação do nome, cada loop corresponde a um item
   // na arvore de variáveis do tipo: "a.b.c[5][10].d"
   while(contexto[pos])
   {
     string var;
-//cout << "loop!" << endl;
-//cout << "Char: " << contexto[pos] << endl;
     
     // Verifico se a variável é do tipo de acesso à array: '[0]' ou '[100]'
     if(!bArray)
     {
       // Elimine espaços em branco antes do nome da variável.
-      while(blank.match(contexto[pos])) pos++;
+      while(isBlank.match(contexto[pos])) pos++;
       
       // Leia todas as letras do nome da variável.
-      while(mVar.match(contexto[pos])) pos++;
+      while(isName.match(contexto[pos])) pos++;
       
       // Tratando o fim do nome de um item do endereço de variável
       // do tipo da variável c ou d no exemplo a seguir: "a.b.c.d[10]":
       if(charClass("[[.;, \t\n=<>]").match(contexto[pos]) || !contexto[pos])
       {
         // Encontre a próxima posição que não seja branca.
-        if(contexto[pos]==' ') notBlank.find(contexto,pos);
+        if(contexto[pos]==' ') isBlank.ifind(contexto,pos);
         
-//cout << "contexto[pos]: " << contexto[pos] << endl;
         switch(contexto[pos])
         {
           case '[':
@@ -953,20 +908,20 @@ void validate_addr(std::string contexto, int& pos)
     // Nesse caso estamos lendo algo do tipo "[10]"
     {
       // Despreze os caracteres em branco:
-      notBlank.find(contexto,pos);
+      isBlank.ifind(contexto,pos);
       
       // Leia o número até o final:
       charClass("[^0-9]").find(contexto,pos);
       
       // Despreze os demais caracteres em branco:
-      notBlank.find(contexto,pos);
+      isBlank.ifind(contexto,pos);
       
       if(contexto[pos]!=']')
         throw "Esperado ']' no endereço de variável!: cContexto::validate()";
       else pos++;
       
       // Despreze quaisquer caracteres em branco:
-      notBlank.find(contexto,pos);
+      isBlank.ifind(contexto,pos);
       
       switch(contexto[pos])
       {
@@ -994,22 +949,59 @@ void validate_addr(std::string contexto, int& pos)
   }
 }
 
+// Verifica se a string recebida pela construtora 
+// é uma string válida para ser lida pelo build(). 
+// Caso contrário lança o erro correspondente. 
+void cContexto::validate(std::string contexto) 
+{ 
+  int pos=0; 
+   
+  // Para cada item do contexto: " a = b; b < 3; c > 4 " 
+  while(contexto[pos]) 
+  { 
+    // Leia o primeiro operando: 
+    readOperand(contexto,pos); 
+     
+    // Um loop para cada par operador, operando: 
+    while(contexto[pos]!='\0' && contexto[pos]!=';') 
+    { 
+      // Pule o operador: 
+      pos++; 
+      // Leia o próximo operando: 
+      readOperand(contexto,pos); 
+    } 
+     
+    if(contexto[pos]==';' || contexto[pos]==',') 
+    { 
+      pos++; continue; 
+    } 
+    else return; 
+  } 
+}
+
+/*
+ * @name - readOperand
+ * @desc - read the next operand on the contexto string
+ *         (starting from contexto[pos]), and return
+ *         the position of the end of this operand + 1.
+ */
 void cContexto::readOperand(std::string contexto, int& pos)
 {
+  static charClass letter("[a-zA-Z_]");
+  static charClass number("[0-9]");
   // Despreze os caracteres brancos:
-  notBlank.find(contexto, pos);
+  isBlank.ifind(contexto, pos);
   
-  // Se tiver encontrado o inicio de um endereço de variável:
-  if(charClass("[a-zA-Z_]").match(contexto[pos]))
-{
-//cout << "go teste!" << endl;
+  // Se tiver encontrado o início de um endereço de variável:
+  if(letter.match(contexto[pos]))
     // Verifica até onde a variável vai:
     validate_addr(contexto,pos);
-//cout << "end teste!" << endl;
-}
-  // Se tiver encontrado o inicio de um caractere numerico:
-  else if(charClass("[0-9]").match(contexto[pos]))
-    charClass("[^0-9]").find(contexto,pos);
+
+  // Se tiver encontrado o início de um caractere numérico:
+  else if(number.match(contexto[pos]))
+    // Encontre o fim do número:
+    number.ifind(contexto,pos);
+  
   // Se tiver encontrado o início de uma string:
   else if(contexto[pos]=='"')
   {
@@ -1017,473 +1009,74 @@ void cContexto::readOperand(std::string contexto, int& pos)
     while(contexto[pos-1]=='\\' || contexto[pos]!='"') pos++;
   }
   
-//cout << "contexto: \"" << contexto << '"' << endl;
-//cout << "contexto[pos]: " << contexto[pos] << endl;
-//cout << "pos: " << pos << endl;
   // Despreze os caracteres brancos:
   if(contexto[pos]=='"') pos++;
-  notBlank.find(contexto,pos);
-
-//cout << "Contexto: \"" << contexto << '"' << endl;
-//cout << "Pos: " << pos << endl;
-//cout << "Char: " << (int)(contexto[pos]) << endl;
-//cout << "Bool: " << (contexto[pos]!='\0') << endl;
+  isBlank.ifind(contexto,pos);
   
   // Caso o caractere após o operando não seja: =<>;, ou \0:
   if(!charClass("[-=<>+&|!;,]").match(contexto[pos]) && contexto[pos]!='\0')
     throw "Caractere inválido no contexto!: cContexto::validate()";
 }
 
-// Verifica se a string recebida pela construtora
-// é uma string válida para ser lida pelo build().
-// Caso contrário lança o erro correspondente.
-void cContexto::validate(std::string contexto)
-{
+void cExpressao::build_repr(const std::string& str) {
+
+  this->repr = std::string();
+  bool lastblank = true;
+
+  for(char c : str) {
+    if(lastblank && isblank(c)) continue;
+    lastblank = false;
+
+    if(isblank(c)) lastblank = true;
+
+    this->repr.push_back(c);
+  }
+
+  if(isblank(repr.back())) repr.pop_back();
+}
+
+cExpressao::cExpressao(std::string exp_s, int& pos,
+    const std::string& delim, Scope scope) : exp(exp_s.c_str(), scope) {
+
+  // Slice out the first part of the string:
+  int end = exp_s.find_first_of(delim, pos);
+  if(end == -1) end = exp_s.length();
+
+  std::string sub = exp_s.substr(pos, end-pos);
+
+  build_repr(sub);
+  pos = end;
+}
+
+void cContexto::build(std::string contexto) {
   int pos=0;
   
   // Para cada item do contexto: " a = b; b < 3; c > 4 "
-  while(contexto[pos])
-  {
-    // Leia o primeiro operando:
-    readOperand(contexto,pos);
+  while(contexto[pos]) {
+    expList.push_back(cExpressao(contexto, pos, ";,"));
     
-    // Um loop para cada par operador, operando:
-    while(contexto[pos]!='\0' && contexto[pos]!=';')
-    {
-      // Pule o operador:
-      pos++;
-      // Leia o próximo operando:
-      readOperand(contexto,pos);
-    }
-    
-    if(contexto[pos]==';' || contexto[pos]==',')
-    {
+    if(contexto[pos]==';' || contexto[pos]==',') {
       pos++; continue;
-    }
-    else return;
-  }
-}
-
-expItem cExpressao::getOperando(std::string exp, int& pos)
-{
-  int inicio;
-  std::pair<eTipo,std::string> resp;
-
-  // Despreze espaços em branco:
-  notBlank.find(exp, pos);
-  
-  // cout << "exp_operando: '" << exp << "'" << endl;
-  // cout << "pos: " << pos << endl;
-  inicio = pos;
-  
-  if(exp[pos]=='"')
-  {
-    pos++;
-    while(exp[pos-1]=='\\' || exp[pos]!='"') pos++;
-    resp = {STR,exp.substr(inicio+1,pos-inicio-1)};
-  }
-  else if(exp.substr(pos,4)=="true")
-  {
-    resp = {BOOL, string("true")};
-    pos+=4;
-  }
-  else if(exp.substr(pos,5)=="false")
-  {
-    resp = {BOOL, string("")};
-    pos+=5;
-  }
-  else if(charClass("[0-9.-]").match(exp[pos]))
-  // Caso tenha encontrado um número
-  {
-    charClass("[^0-9.e-]").find(exp,pos);
-    resp = {NUM,exp.substr(inicio,pos-inicio)};
-  }
-  else
-  // Caso tenha encontrado um endereço de variável:
-  {
-    for( ; (unsigned)pos<exp.length(); pos++)
-      if(opClass.match(exp[pos])) break;
-    // validate_addr(exp,pos);
-    // Encontre o fim do nome da variável:
-    int aux = pos-1;
-    while(blank.match(exp[aux])) aux--;
-    resp = {VAR,exp.substr(inicio,aux+1-inicio)};
-  }
-  
-  // Despreze os caracteres brancos:
-  if(exp[pos]=='"') pos++;
-  notBlank.find(exp,pos);
-  
-  // cout << "Var? " << (resp.first==VAR?"true":"false") << endl;
-  return resp;
-}
-
-expItem cExpressao::getOperador(std::string exp, int& pos)
-{
-  int inicio = pos;
-
-  // Encontra o fim do nome do operador.
-  while(opClass.match(exp[pos])) pos++;
-
-  string op = exp.substr(inicio,pos-inicio);
-
-  if(!opMap.count(op))
-    throw "Operador não existente! ou incorreto";
-
-  notBlank.find(exp,pos);
-
-  return {OP,op};
-}
-
-void cExpressao::build(std::string exp)
-{
-  // O mapa abaixo associa cada operador com uma prioridade.
-  // Essa prioridade é maior para multiplicações
-  // do que para somas por exemplo.
-  map<string, int> prioridade;
-
-  /*
-    Segue abaixo os operadores reconhecidos e
-    suas respectivas prioridades:
-    3 "!"
-      
-    2 "*"
-      "&&"
-      "/"
-      
-    1 "+"
-      "-"
-      "||"
-      
-    0 "=="
-      "!="
-      "<"
-      ">"
-      "<="
-      ">="
-  */
-
-  int priority=0;
-  int new_priority=0;
-
-  list<expItem> operadores;
-  list<expItem> operandos;
-  list<expItem> opUnitarios;
-  expItem item;
-  
-  // loop:
-  for(int i=0; (unsigned)i<exp.length();)
-  {
-    // Find What:
-    if(opClass.match(exp[i]))
-    {
-      // IF operador call getOperador - return operator priority.
-      item = getOperador(exp,i);
-      if(item.second==string("!"))
-        opUnitarios.push_back(item);
-      else {
-        new_priority = opMap[item.second];
-        operadores.push_back(item);
-      }
-    }
-    else
-    {
-      // IF exp[i] == operando: call getOperando.
-      item = getOperando(exp,i);
-      operandos.push_back(item);
-      
-      // Se após adicionar um item, houver algo na pilha
-      // de operadores unitários, desempilhe-os:
-      if(opUnitarios.size()>0) {
-        opUnitarios.reverse();
-        this->splice(this->end(),operandos);
-        this->splice(this->end(),opUnitarios);
-      }
-    }
-
-    // IF priority > new_priority push back both lists and empty them.
-    if(priority > new_priority || (unsigned)i==exp.length())
-    {
-      if(priority > new_priority) {
-        // Salvo e removo o último elemento
-        item = operadores.back();
-        operadores.pop_back();
-      }
-
-      // Inverto os operadores,
-      operadores.reverse();
-      // E desempilho as duas pilhas na expressão:
-      this->splice(this->end(),operandos);
-      this->splice(this->end(),operadores);
-
-      if(priority > new_priority) {
-        // Agora re-construo a nova pilha de operadores:
-        priority=new_priority;
-        operadores.push_back(item);
-      }
-      else priority = 0;
-    }
-    else if(priority <= new_priority) priority = new_priority;
-    
-  // end_loop
-  }
-}
-
-cExpressao::cExpressao(std::string exp, int& pos)
-{
-  build(exp.substr(pos,exp.length()-pos));
-  pos = exp.length();
-}
-
-// TODO: Mover essa função para um lugar adequado.
-// Essa função recebe um nome de variável, e o conjunto de
-// variáveis globais e locais, e recupera a variável
-// desejada entre elas, obedecendo a prioridade das variaveis locais.
-vars::cObject& getVar(
-  std::string var_name, vars::cObject& local, vars::cObject& global
-)
-{
-  //cout << "ENTROU NO getVar!" << endl;
-
-  // Check if its a local variable:
-  auto& value1 = local.child(var_name);
-
-  //cout << "ret1:" << endl;
-  if(value1) return value1;
-
-  // Check if its a global variable:
-  auto& value2 = global.child(var_name);
-  //cout << "ret2:" << endl;
-  if(value2)
-    return value2;
-
-  // Then create a new variable on global scope:
-  //cout << "ret3:" << endl;
-  return global.child(var_name,true);
-}
-
-// Recebe um conjunto de variáveis locais e globais, e calcula
-// o valor da expressão cExpressao com estas variáveis.
-std::string cExpressao::eval(vars::cObject local, vars::cObject global)
-{
-  string resp;
-  list<string> pilha;
-
-  for(auto& item : (*this))
-  {
-    if(item.first==STR || item.first==NUM || item.first==BOOL)
-      pilha.push_back(item.second);
-    if(item.first==VAR)
-      pilha.push_back(getVar(item.second, local, global).getValor());
-    if(item.first==OP)
-    {
-      bool single=false;
-      string a,b;
-      if(pilha.size()==1)
-      {
-        single = true;
-        b = pilha.back(); pilha.pop_back();
-      }
-      else
-      {
-        single = false;
-        b = pilha.back(); pilha.pop_back();
-        a = pilha.back(); pilha.pop_back();
-      }
-
-      char op = item.second[0];
-      // Faça um switch com o operador que deve estar na primeira posição:
-      switch(op)
-      {
-        case '=': resp = op_equal(a,b); break;
-        case '<': resp = op_menor(a,b); break;
-        case '>': resp = op_maior(a,b); break;
-        case '&': resp = op_and(a,b);   break;
-        case '|': resp = op_or(a,b);    break;
-        case '+': resp = op_sum(a,b);   break;
-        case '-': resp = op_sub(a,b);   break;
-        case '*': resp = op_mul(a,b);   break;
-        case '/': resp = op_div(a,b);   break;
-        case '!':
-          if(item.second[1]=='=')
-            resp = op_diff(a,b);
-          else
-          {
-            if(!single)
-              pilha.push_back(a);
-            resp = op_not(b);
-          }
-        break;
-        
-        default:
-          throw "Operador não reconhecido! cExpressao::eval()";
-      }
-
-      pilha.push_back(resp);
-    }
-  }
-
-  if(pilha.size()!=1)
-    throw "Expressão não retornou um único elemento!:cExpressao::eval()";
-
-
-  // cout << "global: " << global.str() << endl;
-  return pilha.front();
-}
-
-std::string cExpressao::op_equal(std::string a, std::string b)
-{
-  if(numeric(a) && numeric(b))
-    return atoi(a.c_str())==atoi(b.c_str())?"true":"";
-  
-  if(a==b) return string("true");
-  else return string("");
-}
-
-std::string cExpressao::op_diff(std::string a, std::string b)
-{
-  if(numeric(a) && numeric(b))
-    return atoi(a.c_str())!=atoi(b.c_str())?"true":"";
-
-  if(a!=b) return string("true");
-  else return string("");
-}
-
-std::string cExpressao::op_menor(std::string a, std::string b)
-{
-  if(numeric(a) && numeric(b))
-    return atoi(a.c_str())<atoi(b.c_str())?"true":"";
-
-  if(a<b) return string("true");
-  else return string("");
-}
-
-std::string cExpressao::op_maior(std::string a, std::string b)
-{
-  if(numeric(a) && numeric(b))
-    return atoi(a.c_str())>atoi(b.c_str())?"true":"";
-
-  if(a>b) return string("true");
-  else return string("");
-}
-
-std::string cExpressao::op_and(std::string a, std::string b)
-{
-  string empty;
-  if(a!=empty && b!=empty) return string("true");
-  else return string("");
-}
-
-std::string cExpressao::op_or(std::string a, std::string b)
-{
-  string empty;
-  if(a!=empty || b!=empty) return string("true");
-  else return string("");
-}
-
-bool cExpressao::numeric(std::string str)
-{
-  int pos;
-  // Se encontrar qualquer caractere não numerico:
-  if(charClass("[^-eE0-9.]").find(str,pos=0)) return false;
-
-  int dot=0;
-  for(auto c : str) if(c=='.') dot++;
-  if(dot>1) return false;
-  
-  return true;
-}
-
-std::string cExpressao::float_to_str (double number){
-  std::ostringstream buff;
-  buff << number;
-  return buff.str();   
-}
-
-std::string cExpressao::op_sum(std::string a, std::string b)
-{
-  if(!numeric(a)) return string("");
-  if(!numeric(b)) return string("");
-  
-  double af=atof(a.c_str());
-  double bf=atof(b.c_str());
-
-  return float_to_str(af+bf);
-}
-
-std::string cExpressao::op_sub(std::string a, std::string b)
-{
-  if(!numeric(a)) return string("");
-  if(!numeric(b)) return string("");
-  
-  double af=atof(a.c_str());
-  double bf=atof(b.c_str());
-
-  return float_to_str(af-bf);
-}
-
-std::string cExpressao::op_mul(std::string a, std::string b)
-{
-  if(!numeric(a)) return string("");
-  if(!numeric(b)) return string("");
-  
-  double af=atof(a.c_str());
-  double bf=atof(b.c_str());
-
-  return float_to_str(af*bf);
-}
-
-std::string cExpressao::op_div(std::string a, std::string b)
-{
-  if(!numeric(a)) return string("");
-  if(!numeric(b)) return string("");
-  
-  double af=atof(a.c_str());
-  double bf=atof(b.c_str());
-
-  return float_to_str(af/bf);
-}
-
-std::string cExpressao::op_not(std::string str)
-{
-  if(str==string("")) return string("true");
-  else return string("");
-}
-
-void cContexto::build(std::string contexto)
-{
-  int pos=0;
-  
-  // Para cada item do contexto: " a = b; b < 3; c > 4 "
-  while(contexto[pos])
-  {
-    expList.push_back(cExpressao(contexto, pos));
-    
-    if(contexto[pos]==';')
-    {
-      pos++; continue;
-    }
-    else return;
+    } else return;
   }
 }
 
 // Avalia cada uma das expressões do contexto.
 // Caso uma delas seja falsa o contexto é considerado falso.
-bool cContexto::eval(vars::cObject& local, vars::cObject& global)
-{
-  for(auto& exp : this->expList)
-    if(exp.eval(local,global)==string("")) return false;
+bool cContexto::eval(Scope scope) {
+  for(auto& exp : this->expList) {
+    packToken p = exp.eval(scope);
+    if(!p.asBool()) return false;
+  }
   return true;
 }
 
-cContexto::cContexto(std::string contexto)
-{
+cContexto::cContexto(std::string contexto) {
   validate(contexto);
   build(contexto);
 }
 
-cContexto::cContexto(std::string contexto, int& pos)
-{
+cContexto::cContexto(std::string contexto, int& pos) {
   int inicio = pos;
   // Encontre o fim do contexto:
   while((contexto[pos]!='=' || contexto[pos+1]!='>') && contexto[pos]) pos++;
@@ -1494,15 +1087,14 @@ cContexto::cContexto(std::string contexto, int& pos)
   build(contexto);
 }
 
-void executaSig(vars::cObject local, cSignificado sig)
-{
+void executaSig(Scope local, cSignificado sig) {
   int aux=0;
   string str = sig.texto;
   
-  for(auto var = sig.variaveis.rbegin(); var!=sig.variaveis.rend(); var++)
-  {
+  for(auto var = sig.variaveis.rbegin(); var!=sig.variaveis.rend(); var++) {
     // Pegue o valor da variável:
-    string str_var = getVar(var->first, local, ambiente::global).getValor();
+    packToken t = local.find(var->first);
+    string str_var = t.str();
     
     str.insert(var->second+aux, str_var);
     aux+=str_var.length();
@@ -1515,15 +1107,16 @@ void executaSig(vars::cObject local, cSignificado sig)
     banco::execInst(str);
 }
 
-void executa(cInst inst, pMatch::tInterpretacao escopo_local)
-{
+vars::cObject local;
+
+void executa(cInst inst, pMatch::tInterpretacao escopo_local) {
   // Variáveis locais:
   local = vars::cObject(escopo_local);
 
   list<cSignificado> sigs = inst.getSignificados();
   
   for(auto& sig : sigs)
-    executaSig(local, sig);
+    executaSig(&local, sig);
 }
 
 

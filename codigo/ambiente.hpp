@@ -20,7 +20,8 @@ void inicializa_banco();
 namespace ambiente
 {
   // Variáveis globais
-  extern vars::cObject global;
+  extern vars::cObject* global;
+  extern Scope scope;
   
   // Drivers:
   class driver
@@ -53,32 +54,36 @@ namespace ambiente
     std::string nome="talkin";
     std::string run(std::string codigo)
     {
-      using namespace std;
-      using namespace pMatch;
-      int pos=0;
+      // TODO: rewrite the code below
+      // using namespace std;
+      // using namespace pMatch;
+      // int pos=0;
 
-      // cout << "codigo: " << codigo << endl;
+      // // cout << "codigo: " << codigo << endl;
 
-      // cin >> pos;
+      // // cin >> pos;
 
-      // Encontra o operador de atribuição:
-      while(codigo[pos] != '=') pos++;
+      // // Encontra o operador de atribuição:
+      // while(codigo[pos] != '=') pos++;
 
-      std::string var = codigo.substr(0,pos);
+      // std::string var = codigo.substr(0,pos);
 
-      pos++;
-      cout  << "codigo: " << codigo.substr(pos,codigo.size()-pos) << endl;
-      cExpressao exp = cExpressao(codigo,pos);
+      // pos++;
+      // cout  << "codigo: " << codigo.substr(pos,codigo.size()-pos) << endl;
+      // cExpressao exp = cExpressao(codigo,pos);
 
-      vars::cObject* v;
-      if(!(v=&local.child(var)))
-        if(!(v=&global.child(var)))
-          v=&(global.child(var,true));
+      // vars::cObject* v;
+      // if(!(v=&local.child(var)))
+      //   if(!(v=&global->child(var)))
+      //     v=&(global->child(var,true));
 
-      v->setValor(exp.eval(local,global));
+      // v->setValor(exp.eval(local,global));
 
-      return v->getValor();
+      // return v->getValor();
 
+      return "";
+
+      // TODO: rewrite code below:
       // string texto;
       
       // // Inserir instrução;
