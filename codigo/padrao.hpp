@@ -16,13 +16,21 @@ namespace pMatch
     private:
     bool invert=false;
 
+    bool _match(char input, bool invert);
+    char _find(std::string input, int& pos, bool invert);
+
     public:
     charClass(std::string format);
     charClass(const char* format);
     
     bool match(char input);
     bool match(std::string, int pos);
+    bool imatch(char input);
+    bool imatch(std::string, int pos);
+
     char find(std::string input, int& pos);
+    char ifind(std::string input, int& pos);
+
     static charClass getClass(std::string format, int& pos);
     
     std::string str();

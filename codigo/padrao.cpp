@@ -96,8 +96,16 @@ pMatch::charClass::charClass(const char* format) :
 
 // /*
 bool pMatch::charClass::match(string input, int pos)
-{ return match(input[pos]); }
+{ return _match(input[pos], this->invert); }
 bool pMatch::charClass::match(char input)
+{ return _match(input, this->invert); }
+
+bool pMatch::charClass::imatch(string input, int pos)
+{ return _match(input[pos], !this->invert); }
+bool pMatch::charClass::imatch(char input)
+{ return _match(input, !this->invert); }
+
+bool pMatch::charClass::_match(char input, bool invert)
   {
     charClass format = *this;
 
@@ -121,14 +129,14 @@ bool pMatch::charClass::match(char input)
         
         char c=format[ini];
         for(c++ ; c < format[fim]; c++)
-          if(input == c) return (this->invert?false:true);
+          if(input == c) return (invert?false:true);
       }
 
       // Caso o formato seja do tipo simples: "[abc]"
       else if( input == format[j] )
-        return (this->invert?false:true);
+        return (invert?false:true);
     }
-    return (this->invert?true:false);
+    return (invert?true:false);
     
     // * * * * * * * Fim da Execução da Função * * * * * * *
     
@@ -170,6 +178,10 @@ bool pMatch::charClass::match(char input)
  *  
  */
 char pMatch::charClass::find(string input, int& pos)
+{ return _find(input, pos, this->invert); }
+char pMatch::charClass::ifind(string input, int& pos)
+{ return _find(input, pos, !this->invert); }
+char pMatch::charClass::_find(string input, int& pos, bool invert)
 {
   charClass format = *this;
   
@@ -181,7 +193,7 @@ char pMatch::charClass::find(string input, int& pos)
   
   for(i=pos; input[i]; i++)
   {
-    if(format.match(input[i]))
+    if(format._match(input[i], invert))
     {
       pos=i;
       return input[i];
