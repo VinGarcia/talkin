@@ -8,11 +8,17 @@ NUMBER="ALL"
 
 CC    =  g++
 FLAGS = -Wall -std=c++11 -g
-OBJS  =  ambiente.o padrao.o banco.o vars.o
+OBJS =  ambiente.o padrao.o banco.o vars.o
 BIN  =  talkin
 MAIN  =  main.cpp
 
-$(BIN): $(OBJS)
+# Subdirectories:
+VPATH=exp-parser
+MODULES=exp-parser
+FLAGS+=-I./exp-parser
+OBJS+=exp-parser/shunting-yard.o exp-parser/packToken.o
+
+$(BIN): $(MODULES) $(OBJS)
 	@echo ""
 	@echo " - Compilando \"$(BIN)\" -"
 	@echo ""
@@ -23,6 +29,9 @@ $(BIN): $(OBJS)
 	@echo " - Compilando Objeto \"$@\" -"
 	@echo ""
 	@$(CC) $(FLAGS) $< -c
+
+exp-parser:
+	@make -C exp-parser/
 
 number:
 	@echo "#define NUMBER $(NUMBER)" > testes/number.h
