@@ -100,14 +100,14 @@
   
   class cExpressao
   {
-    // Used to keep a readable representation of the
+    // Keep a readable representation of the
     // expression. (not on RPN) for str() function.
     std::string repr;
     calculator exp;
 
     void build_repr(const std::string& str);
   public:
-    cExpressao() : exp() {}
+    cExpressao();
 
     // Used to parse out a expression from a string.
     cExpressao(std::string exp, int& pos,

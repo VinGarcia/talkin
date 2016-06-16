@@ -6,106 +6,83 @@
 #include "catch.hpp"
 #include "catch_lower.hpp"
 
+#include "shunting-yard.h"
+
 /* * * * * START TEST cContexto * * * * */
 
 TEST_CASE("cContexto", "[cContexto]") {
-  using namespace std;
-  using namespace pMatch;
+  using std::string;
+  using std::cout;
+  using std::endl;
+
+  string expected;
   cContexto con;
   int pos;
 
-  #if NUMBER==cContexto || NUMBER==1 || NUMBER==ALL
-  {
-    cout << " * * * * * TESTE cContexto() * * * * *\n\n";
-    
-    cout << "  @Testes com cContextos`s:" << endl << endl;
+  GIVEN("that it should build ok") {
     
     //banco::addInst("(\"[0-9][0-9]*\")p; - p = 3 => #!stdout: works!");
     //banco::execInst("3");
     
-    try{
-    cout << 1 << endl;
-    cout << "Teste \"0 = 0\"" << endl;
-    con = cContexto("0 = 0", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+    then("it should build with any numeral expression") {
+      expected = "0 == 0";
+      check( expected == cContexto("0 == 0", pos=0).str() );
 
-    try{
-    cout << 1.1 << endl;
-    cout << "Teste \"10 = 10\"" << endl;
-    con = cContexto("10 = 10", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "10 == 10";
+      check( expected == cContexto("10 == 10", pos=0).str() );
 
-    try{
-    cout << 1.2 << endl;
-    cout << "Teste \"10 = 10\"" << endl;
-    con = cContexto("10= 10", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "10== 10";
+      check( expected == cContexto("10== 10", pos=0).str() );
 
-    try{
-    cout << 1.3 << endl;
-    cout << "Teste \"10 = 10\"" << endl;
-    con = cContexto("10 =10", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "10 ==10";
+      check( expected == cContexto("10 ==10", pos=0).str() );
 
-    try{
-    cout << 1.4 << endl;
-    cout << "Teste \"10 = 10\"" << endl;
-    con = cContexto(" 10 = 10", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "10 == 10";
+      check( expected == cContexto(" 10 == 10", pos=0).str() );
 
-    try{
-    cout << 1.5 << endl;
-    cout << "Teste \"10 = 10\"" << endl;
-    con = cContexto("10 = 10 ", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "10 == 10";
+      check( expected == cContexto("10 == 10 ", pos=0).str() );
 
-    try{
-    cout << 2 << endl;
-    cout << "Teste \"0 = 0\"" << endl;
-    con = cContexto("\"0\" = 0", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "\"0\" == 0";
+      check( expected == cContexto("\"0\" == 0", pos=0).str() );
 
-    try{
-    cout << 3 << endl;
-    cout << "Teste \"var = 0\"" << endl;
-    con = cContexto("var = 0", pos=0);
-    cout << "      \"" << con.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "var == 0";
+      check( expected == cContexto("var == 0", pos=0).str() );
+    }
+
+    then("it should build with multiple concatenated expressions") {
+
+      expected = "var1 == 0, var2 == 1";
+      check( expected == cContexto("var1 == 0, var2 == 1", pos=0).str() );
+
+    }
+
+    then("it should report erros correctly") {
+      check_throws( cContexto(", var2 == 1;", pos=0) );
+
+      check_throws( cContexto("var1 == 0,;", pos=0) );
+
+      check_throws( cContexto("var1 == 0,  ;", pos=0) );
+
+      check_throws( cContexto("", pos=0) );
+
+      check_throws( cContexto("var1 == 0;", pos=10) );
+
+      check_throws( cContexto("var1 == 0;", pos=20) );
+    }
   }
-  #endif
 
-  #if NUMBER==eval || NUMBER==2 || NUMBER==ALL
-  {
-    cout << "      @Teste da função eval():" << endl << endl;
-
+  GIVEN("that it should evaluate as expected") {
     // Criando variáveis locais:
     vars::cObject v = vars::cObject();
-    v.subvars["var"] = vars::cObject();
-    v.subvars["var"] = vars::cObject("0");
+    v["var"] = new vars::cObject();
+    v["var"] = new vars::cObject("0");
     
-    try{
-    cout << 4 << endl;
-    cout << "Teste 1" << endl;
-    con = cContexto("var = 0", pos=0);
-    cout << "      " << con.eval(v,ambiente::global) << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+    check( cContexto("var['$'] == '0'", pos=0).eval(&v) == 1 );
     
-    v.subvars["var"].valor="1";
-    try{
-    cout << 4.1 << endl;
-    cout << "Teste 0" << endl;
-    con = cContexto("var = 0", pos=0);
-    cout << "      " << con.eval(v,ambiente::global) << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+    v["var"]["$"]="1";
+    check( cContexto("var['$'] == '0'", pos=0).eval(&v) == 0 );
   }
-  #endif
 }
 
 /* * * * * END TEST cContexto * * * * */

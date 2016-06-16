@@ -16,7 +16,6 @@ TEST_CASE("cExpressao", "[cExpressao]") {
   std::string expected;
   int pos;
 
-  #if NUMBER==cExpressao || NUMBER==1 || NUMBER==ALL
   GIVEN("that it should build ok")
   {
     then("it should build with numbers:") {
@@ -74,13 +73,39 @@ TEST_CASE("cExpressao", "[cExpressao]") {
       expected = "calculator { RPN: [ a, \"b\", ., \"c\", ., \"d\", ., \"e\", ., 10, [], \"batata\", ., c, 0, [], + ] }";
       check( cExpressao("a.b.c.d.e[10].batata + c[0]", pos=0).str_raw() == expected );
 
+    } and_then ("it should build by parsing a string ended in \",.\" or '\\0'") {
+
+      expected = "calculator { RPN: [ a, 1, == ] }";
+      check( cExpressao("a == 1,b == 2,c == 3", pos=0).str_raw() == expected );
+      check( pos == 6 );
+
+      expected = "calculator { RPN: [ a, 1, == ] }";
+      check( cExpressao("a == 1;b == 2,c == 3", pos=0).str_raw() == expected );
+      check( pos == 6 );
+
+      expected = "calculator { RPN: [ b, 2, == ] }";
+      check( cExpressao("a == 1;b == 2,c == 3", ++pos).str_raw() == expected );
+      check( pos == 13 );
+
+      expected = "calculator { RPN: [ c, 3, == ] }";
+      check( cExpressao("a == 1;b == 2,c == 3", ++pos).str_raw() == expected );
+      check( pos == 20 );
+
+      expected = "calculator { RPN: [ c, 3, == ] }";
+      check_throws( cExpressao("a == 1;b == 2,c == 3;", pos=21).str_raw() == expected );
+
+      expected = "calculator { RPN: [ c, 3, == ] }";
+      check_throws( cExpressao("a == 1;b == 2,c == 3;  ", pos=6).str_raw() == expected );
+
+      expected = "calculator { RPN: [ c, 3, == ] }";
+      check_throws( cExpressao("a == 1;b == 2, ,c == 3", pos=6).str_raw() == expected );
+
     } and_then ("it should report errors correctly") {
 
       check_throws( cExpressao("a + +", pos=0) );
 
     }
   }
-  #endif
 
   #if NUMBER==eval || NUMBER==2 || NUMBER==ALL
   {

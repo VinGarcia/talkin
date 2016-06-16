@@ -949,75 +949,6 @@ void validate_addr(std::string contexto, int& pos)
   }
 }
 
-// Verifica se a string recebida pela construtora 
-// é uma string válida para ser lida pelo build(). 
-// Caso contrário lança o erro correspondente. 
-void cContexto::validate(std::string contexto) 
-{ 
-  int pos=0; 
-   
-  // Para cada item do contexto: " a = b; b < 3; c > 4 " 
-  while(contexto[pos]) 
-  { 
-    // Leia o primeiro operando: 
-    readOperand(contexto,pos); 
-     
-    // Um loop para cada par operador, operando: 
-    while(contexto[pos]!='\0' && contexto[pos]!=';') 
-    { 
-      // Pule o operador: 
-      pos++; 
-      // Leia o próximo operando: 
-      readOperand(contexto,pos); 
-    } 
-     
-    if(contexto[pos]==';' || contexto[pos]==',') 
-    { 
-      pos++; continue; 
-    } 
-    else return; 
-  } 
-}
-
-/*
- * @name - readOperand
- * @desc - read the next operand on the contexto string
- *         (starting from contexto[pos]), and return
- *         the position of the end of this operand + 1.
- */
-void cContexto::readOperand(std::string contexto, int& pos)
-{
-  static charClass letter("[a-zA-Z_]");
-  static charClass number("[0-9]");
-  // Despreze os caracteres brancos:
-  isBlank.ifind(contexto, pos);
-  
-  // Se tiver encontrado o início de um endereço de variável:
-  if(letter.match(contexto[pos]))
-    // Verifica até onde a variável vai:
-    validate_addr(contexto,pos);
-
-  // Se tiver encontrado o início de um caractere numérico:
-  else if(number.match(contexto[pos]))
-    // Encontre o fim do número:
-    number.ifind(contexto,pos);
-  
-  // Se tiver encontrado o início de uma string:
-  else if(contexto[pos]=='"')
-  {
-    pos++;
-    while(contexto[pos-1]=='\\' || contexto[pos]!='"') pos++;
-  }
-  
-  // Despreze os caracteres brancos:
-  if(contexto[pos]=='"') pos++;
-  isBlank.ifind(contexto,pos);
-  
-  // Caso o caractere após o operando não seja: =<>;, ou \0:
-  if(!charClass("[-=<>+&|!;,]").match(contexto[pos]) && contexto[pos]!='\0')
-    throw "Caractere inválido no contexto!: cContexto::validate()";
-}
-
 void cExpressao::build_repr(const std::string& str) {
 
   this->repr = std::string();
@@ -1035,8 +966,10 @@ void cExpressao::build_repr(const std::string& str) {
   if(isblank(repr.back())) repr.pop_back();
 }
 
+cExpressao::cExpressao() : exp() { exp.scope = ambiente::global; }
 cExpressao::cExpressao(std::string exp_s, int& pos,
-    const std::string& delim, Scope scope) : exp(exp_s.c_str(), scope) {
+    const std::string& delim, Scope scope) : exp() {
+  exp.scope = ambiente::global;
 
   // Slice out the first part of the string:
   int end = exp_s.find_first_of(delim, pos);
@@ -1044,7 +977,13 @@ cExpressao::cExpressao(std::string exp_s, int& pos,
 
   std::string sub = exp_s.substr(pos, end-pos);
 
+  exp.compile(sub.c_str(), scope);
   build_repr(sub);
+  if(this->repr.size() == 0) {
+    throw std::string(
+        "cExpressao::cExpressao: Invalid empty expression on context!: `" + exp_s + "`.");
+  }
+
   pos = end;
 }
 
@@ -1055,9 +994,8 @@ void cContexto::build(std::string contexto) {
   while(contexto[pos]) {
     expList.push_back(cExpressao(contexto, pos, ";,"));
     
-    if(contexto[pos]==';' || contexto[pos]==',') {
-      pos++; continue;
-    } else return;
+    if(contexto[pos] == '\0') return;
+    else ++pos;
   }
 }
 
@@ -1072,18 +1010,21 @@ bool cContexto::eval(Scope scope) {
 }
 
 cContexto::cContexto(std::string contexto) {
-  validate(contexto);
   build(contexto);
 }
 
 cContexto::cContexto(std::string contexto, int& pos) {
   int inicio = pos;
+
+  if((unsigned)pos >= contexto.size()) {
+    throw std::string("cContexto::cContexto: Invalid empty context!");
+  }
+
   // Encontre o fim do contexto:
-  while((contexto[pos]!='=' || contexto[pos+1]!='>') && contexto[pos]) pos++;
+  while((contexto[pos]!='=' || contexto[pos+1]!='>') && contexto[pos]) ++pos;
   
   contexto = contexto.substr(inicio, pos-inicio);
   
-  validate(contexto);
   build(contexto);
 }
 
