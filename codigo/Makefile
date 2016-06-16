@@ -7,7 +7,8 @@ CLASS=charClass
 NUMBER="ALL"
 
 CC    =  g++
-FLAGS = -Wall -std=c++11 -g
+DEBUG = -g -fno-inline
+FLAGS = -Wall -std=c++11 $(DEBUG)
 OBJS =  ambiente.o padrao.o banco.o vars.o
 BIN  =  talkin
 MAIN  =  main.cpp
