@@ -636,46 +636,6 @@ bool cRotulo::match(string str, int pos)
       this->padrao = pMatch::arrayClass(padrao,ini);
   }
   
-  // TODO: Apagar a função abaixo, não mais utilizada.
-/*
-  void cInst::buildContexto(string contexto)
-  {
-    int i;
-    int fpos;
-    string str=string("");
-    
-    // Encontre o fim do último contexto.
-    for(fpos=contexto.length()-1; !isBlank.imatch(contexto[fpos]); fpos--);
-    fpos++;
-    
-    // Note que o loop abaixo roda uma última vez para i==fpos
-    for(i=0; i<fpos+1; i++)
-    {
-      // Ignore espaços em branco:
-      if(contexto[i]==' ' && i!=fpos) continue;
-      
-      // Se chegar ao fim de uma expressão de contexto:
-      if(contexto[i]==',' || i==fpos)
-      {
-        // Anoto o contexto:
-        this->lContexto.push_back(str);
-        // Zero a string:
-        str=string("");
-        // Continuo a execução:
-        continue;
-      }
-      str+=contexto[i];
-    }
-  }
-*/
-  
-/*
-  cSignificado::build(string significado)
-  {
-    
-  }
-// */
-  
   cSignificado::cSignificado(const char* str, int& pos):
   cSignificado(string(str), pos){}
   cSignificado::cSignificado(string significado, int& pos)
