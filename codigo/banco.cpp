@@ -779,6 +779,33 @@ bool cRotulo::match(string str, int pos)
     
     // Encerre a construção.
   }
+
+  std::string cSignificado::str() {
+    using namespace std;
+    
+    int aux=0;
+    string resp = string("");
+    string txt = this->texto;
+    list<pair<string,int>>::iterator it;
+    
+    if(driver != string(""))
+      resp+= "#!" + driver + ": ";
+    
+    resp+='"';
+    
+    for(it=variaveis.begin(); it!=variaveis.end(); it++)
+    {
+      txt.insert(it->second+aux, '@'+it->first+';');
+      aux+=it->first.length()+2;
+    }
+    
+    resp += txt;
+    
+    resp+='"';
+    resp+=';';
+    
+    return resp;
+  }
   
   void cInst::buildSignificado(string significado)
   {

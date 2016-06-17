@@ -178,33 +178,7 @@
     cSignificado(const char* significado, int& pos);
     cSignificado(std::string significado, int& pos);
     
-    std::string str()
-    {
-      using namespace std;
-      
-      int aux=0;
-      string resp = string("");
-      string txt = this->texto;
-      list<pair<string,int>>::iterator it;
-      
-      if(driver != string(""))
-        resp+= "#!" + driver + ": ";
-      
-      resp+='"';
-      
-      for(it=variaveis.begin(); it!=variaveis.end(); it++)
-      {
-        txt.insert(it->second+aux, '@'+it->first+';');
-        aux+=it->first.length()+2;
-      }
-      
-      resp += txt;
-      
-      resp+='"';
-      resp+=';';
-      
-      return resp;
-    }
+    std::string str();
   };
   
   // Testado!
