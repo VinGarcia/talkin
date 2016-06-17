@@ -15,6 +15,8 @@ using namespace ambiente;
 
 /* * * * * START TEST banco * * * * */
 
+#define PRINT_LIST() for(auto& a : banco::strList()) cout << "      " << a << endl
+
 TEST_CASE("banco", "[banco]") {
 
   /*
@@ -33,7 +35,7 @@ TEST_CASE("banco", "[banco]") {
     cout << 1 << endl;
     cout << "Teste inst[1][0]: «rot: \"pad\" - contx => \"sig\";»" << endl;
     banco::addInst("rot: pad - contx => sig");
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
     try{
@@ -41,7 +43,7 @@ TEST_CASE("banco", "[banco]") {
     cout << "Teste inst[1][0]: «rot: \"pad\" - contx => \"sig\";»" << endl;
     cout << "Teste inst[1][1]: «rot2: \"pad2\" - contx2 => \"sig2\";»" << endl;
     banco::addInst("rot2: pad2 - contx2 => sig2");
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
     cout << "  @Teste com o remInst()" << endl << endl;
@@ -50,7 +52,7 @@ TEST_CASE("banco", "[banco]") {
     cout << 3 << endl;
     cout << "Teste inst[1][0]: «rot: \"pad\" - contx => \"sig\";»" << endl;
     banco::remInst(1);
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
     cout << "  @Teste com o execInst()" << endl << endl;
@@ -82,6 +84,7 @@ TEST_CASE("banco", "[banco]") {
     cout << "      "; banco::execInst("hello world!"); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
+    /*
     cout << "  @Teste utilizando charClass`s" << endl << endl;
     
     try{
@@ -120,7 +123,7 @@ TEST_CASE("banco", "[banco]") {
     banco::addInst("inteiro: [0-9][0-9]*");
     }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
     
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     cout << "Lista de rotulos: " << endl;
     for(auto& a : banco::rotList()) cout << "  " << a << endl;
     cout << endl;
@@ -163,7 +166,7 @@ TEST_CASE("banco", "[banco]") {
     ::addInst("\"#!talkin\\: (\"[!-~ \n\t]*\")texto;\" => #!talkin: @texto;");
     }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
     
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     cout << "Lista de rotulos: " << endl;
     for(auto& a : banco::rotList()) cout << "  " << a << endl;
     cout << endl;
@@ -179,7 +182,7 @@ TEST_CASE("banco", "[banco]") {
     ("#!talkin: add some[ ](inteiro)n1;[ ]+[ ](inteiro)n2; => #!stdout: @n1; + @n2;");
     }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
 
-    for(auto& a : banco::strList()) cout << "      " << a << endl; cout << endl;
+    PRINT_LIST(); cout << endl;
     cout << "Lista de rotulos: " << endl;
     for(auto& a : banco::rotList()) cout << "  " << a << endl;
     cout << endl;
@@ -190,6 +193,7 @@ TEST_CASE("banco", "[banco]") {
     cout << "      "; banco::execInst("some 5 + 5");
     
     }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
+// */
   }
   #endif
 }
