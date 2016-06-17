@@ -9,127 +9,82 @@ using namespace std;
 
 /* * * * * START TEST cSignificado * * * * */
 
-TEST_CASE("cSignificado") {
+TEST_CASE("cSignificado", "[cSignificado]") {
   using namespace pMatch;
-  cSignificado sig;
+  std::string expected;
   int pos;
   
-  #if NUMBER==cSignificado || NUMBER==1 || NUMBER==ALL
-  {
+  GIVEN("that it should build ok") {
 
-    cout << " * * * * * TESTE cSignificado() * * * * *\n\n";
+    then("it should parse string literals") {
     
-    cout << "  @Testes com cSignificado`s:" << endl << endl;
+      expected = "\"testando\";";
+      check( cSignificado("testando", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("testando;", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("\"testando\";", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("    \"testando\";", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("\"testando\"    ;", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("\"testando\";    ", pos=0).str() == expected );
+      
+      expected = "\"testando\";";
+      check( cSignificado("    testando    ;    ", pos=0).str() == expected );
+    }
     
-    try{
-    cout << 1 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("testando", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+    then("it should recognize driver calls") {
     
-    try{
-    cout << 2 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("testando;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "#!talkin: \"testando\";";
+      check( cSignificado("#!talkin: testando;", pos=0).str() == expected );
+      
+      expected = "#!talkin: \"testando\";";
+      check( cSignificado("#!talkin:testando    ;    ", pos=0).str() == expected );
+      
+      expected = "#!talkin: \"testando\";";
+      check( cSignificado("#!  talkin  : testando;", pos=0).str() == expected );
+      
+      expected = "#!talkin: \"testando\";";
+      check( cSignificado("      #!talkin: testando;", pos=0).str() == expected );
+    }
     
-    try{
-    cout << 3 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("\"testando\";", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 4 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("    \"testando\";", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 5 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("\"testando\"    ;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 6 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("\"testando\";    ", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 7 << endl;
-    cout << "Teste \"testando\";" << endl;
-    sig = cSignificado("    testando    ;    ", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    cout << "  @Teste com drivers:" << endl << endl;
-    
-    try{
-    cout << 8 << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("#!talkin: testando;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 9 << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("#!talkin:testando    ;    ", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 10 << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("#!  talkin  : testando;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 11 << endl;
-    cout
-    << "Este teste deveria lançar um erro." << endl
-    << "por enquanto o comportamento é aceitável porque a validade()" << endl
-    << "Ainda não está implementada, porém irei deixa-lo aqui como um lembrete"
-    << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("#!  tal  kin  : testando;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 12 << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("      #!talkin: testando;", pos=0);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    cout << "  @Teste variando o pos:" << endl << endl;
-    
-    try{
-    cout << 13 << endl;
-    cout << "Teste #!talkin: \"testando\";" << endl;
-    sig = cSignificado("#!talkin: teste;", pos=0);
-    sig = cSignificado("#!talkin: teste; #!talkin: testando;", pos);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 14 << endl;
-    cout << "Teste \"teste\";" << endl;
-    sig = cSignificado("#!talkin: teste; #!talkin: testando; teste", pos);
-    cout << "      " << sig.str() << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+    then("it should parse sequential cSignificados from a string") {
+
+      expected = "#!talkin: \"testando\";";
+      cSignificado("#!talkin: teste;", pos=0);
+      check( cSignificado("#!talkin: teste; #!talkin: testando;", pos).str() == expected );
+      
+      expected = "\"teste\";";
+      check( cSignificado("#!talkin: teste; #!talkin: testando; teste", pos).str() == expected );
+    }
   }
-  #endif
 }
+
+TEST_CASE("cSignificado TODO", "[cSignificado][!mayfail]") {
+  
+  int pos;
+  std::string expected;
+
+  GIVEN("that it should report erros when building") {
+    then("it should check for valid driver names") {
+      cout
+      << "Este teste deveria lançar um erro." << endl
+      << "por enquanto o comportamento é aceitável porque a validade()" << endl
+      << "Ainda não está implementada, porém irei deixa-lo aqui como um lembrete"
+      << endl;
+
+      expected = "#!talkin: \"testando\";";
+      check_throws( cSignificado("#!  tal  kin  : testando;", pos=0) );
+    }
+  }
+}
+    
 
 /* * * * * END TEST cSignificado * * * * */
