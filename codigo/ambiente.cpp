@@ -6,10 +6,6 @@
 #include "shunting-yard.h" // For Function class
 
 using namespace std;
-using namespace ambiente;
-
-// Drivers do talkin:
-std::map<std::string, driver*> ambiente::drivers;
 
 void inicializa_banco()
 {
