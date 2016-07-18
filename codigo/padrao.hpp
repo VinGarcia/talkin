@@ -8,6 +8,8 @@
 #ifndef CASAMENTO_PADRAO
 #define CASAMENTO_PADRAO
 
+typedef unsigned uint;
+
 namespace pMatch
 {
   // Testado
@@ -17,21 +19,21 @@ namespace pMatch
     bool invert=false;
 
     bool _match(char input, bool invert);
-    char _find(std::string input, int& pos, bool invert);
+    char _find(std::string input, uint& pos, bool invert);
 
     public:
     charClass(std::string format);
     charClass(const char* format);
     
     bool match(char input);
-    bool match(std::string, int pos);
+    bool match(std::string, uint pos);
     bool imatch(char input);
-    bool imatch(std::string, int pos);
+    bool imatch(std::string, uint pos);
 
-    char find(std::string input, int& pos);
-    char ifind(std::string input, int& pos);
+    char find(std::string input, uint& pos);
+    char ifind(std::string input, uint& pos);
 
-    static charClass getClass(std::string format, int& pos);
+    static charClass getClass(std::string format, uint& pos);
     
     std::string str();
   };
@@ -40,18 +42,18 @@ namespace pMatch
   // Considerado testado por uso extremo em outros modulos
   class tWord : public std::string
   {
-    int _start;
-    int _end;
+    uint _start;
+    uint _end;
     
     public:
-    int start(){return _start;}
-    int end(){return _end;}
+    uint start(){return _start;}
+    uint end(){return _end;}
     
     tWord() : std::string() {}
     
-    tWord(const char* word, int start=0) : tWord(std::string(word), start) {}
+    tWord(const char* word, uint start=0) : tWord(std::string(word), start) {}
     
-    tWord(std::string word, int start=0) : std::string(word)
+    tWord(std::string word, uint start=0) : std::string(word)
     {
       if(start<0)
         throw "Parâmetro pos inválido em pMatch::tWord::tWord(string,int)";
@@ -160,9 +162,9 @@ namespace pMatch
     lWord getMatch() { return this->match_word; }
     virtual std::string str()=0;
     
-    virtual bool  match   (std::string input, int pos)=0;
-    //virtual tWord find    (std::string input, int pos)=0;
-    //virtual tWord getClass(std::string, int pos) = 0;
+    virtual bool  match   (std::string input, uint pos)=0;
+    //virtual tWord find    (std::string input, uint pos)=0;
+    //virtual tWord getClass(std::string, uint pos) = 0;
     ~matcher() {}
   };
   
@@ -173,14 +175,14 @@ namespace pMatch
     strClass(const char* str);
     strClass(std::string str);
     
-    bool match(std::string input, int pos);
-    tWord find(std::string input, int pos);
+    bool match(std::string input, uint pos);
+    tWord find(std::string input, uint pos);
     
     // A função getClass lê uma string até encontrar um '\0'
     // ou um '(' que não seja precedido por um '\\'.
     // Seu comportamento trata o '(' de forma especial.
     // As demais funções dessa classe são indiferentes ao '('.
-    static strClass getClass(std::string format, int& pos, std::string stop_on = "(");
+    static strClass getClass(std::string format, uint& pos, std::string stop_on = "(");
     
     std::string str();
   };
@@ -195,7 +197,7 @@ namespace pMatch
     void build(std::string str);
     
     std::list<tInterpretacao>
-    sub_match(std::string, int pos, std::list<matcher*>::iterator it);
+    sub_match(std::string, uint pos, std::list<matcher*>::iterator it);
     
     public:
     arrayClass() {}
@@ -207,11 +209,11 @@ namespace pMatch
     // A string recebida deve estar entre aspas.
     // pos deve apontar para a abertura da aspas antes da execução.
     // e apontará para o fechamento das aspas após a execução.
-    arrayClass(std::string str, int& pos);
+    arrayClass(std::string str, uint* pos);
     
-    bool match(std::string input, int pos);
-    bool match(std::string input, int pos, bool raiz);
-    tWord find(std::string input, int pos);
+    bool match(std::string input, uint pos);
+    bool match(std::string input, uint pos, bool raiz);
+    tWord find(std::string input, uint pos);
     
     std::string str();
   };
@@ -228,14 +230,14 @@ namespace pMatch
     void leLista(std::string str);
     
     // Verifica a validade do parametro das construtoras:
-    void validate(std::string str, int fim);
+    void validate(std::string str, uint fim);
     
-    void build(std::string str, int fim);
+    void build(std::string str, uint fim);
     
     std::string block_name;
      
     // Função recursiva auxiliar da blockClass::match()
-    std::list<tInterpretacao> sub_match(std::string str, int pos, int rep_pos);
+    std::list<tInterpretacao> sub_match(std::string str, uint pos, uint rep_pos);
 
     public:
     std::vector<matcher*> getLista() { return this->lista; }
@@ -251,32 +253,33 @@ namespace pMatch
     // Caso não seja possível é lançado um erro.
     // É preciso que a string comece com um '(' e tenha o formato
     // definido pelo blockClass em seus primeiros caracteres.
-    blockClass(std::string input, int& pos);
+    blockClass(std::string input, uint& pos);
     
-    bool match(std::string input, int pos);
-    tWord find(std::string input, int pos);
+    bool match(std::string input, uint pos);
+    tWord find(std::string input, uint pos);
     
     std::string str();
   };
   
   // Ainda não testado!
-  class objectClass : public matcher, public std::string {
-    void validate(std::string);
-    void build(std::string);
+  class objectClass : public matcher {
+    std::string name;
+
+   private:
+    void build(std::string str, uint* pos = NULL);
     
-    public:
-    objectClass():std::string() {}
-    objectClass(const char* nome);
-    objectClass(std::string nome);
-    objectClass(const objectClass& object) { (*this) = object; }
+   public:
+    objectClass() {}
+    objectClass(const char* name);
+    objectClass(std::string name);
     
-    objectClass(std::string nome, int& pos);
+    objectClass(std::string str, uint& pos);
     
-    bool match(std::string, int pos);
+    bool match(std::string, uint pos);
     // TODO: fazer o código do find
-    tWord find(std::string, int pos) { return tWord("",0); }
+    tWord find(std::string, uint pos) { return tWord("",0); }
    
-    std::string str() { return *this; }
+    std::string str() { return name; }
   };
 }
 

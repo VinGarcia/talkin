@@ -5,33 +5,30 @@
 
 #include "padrao.hpp"
 #include "vars.hpp"
-#include "exp-parser/shunting-yard.h" // for `calculate` class
+#include "shunting-yard.h"  // for `calculate` class
+#include "code-parser.h"    // for CodeParser class
 
 #ifndef BANCO_DE_INSTRUCOES
 #define BANCO_DE_INSTRUCOES
-
-  // Guarda as variáveis locais para a função 'executa'
-  // TODO: Mover isso pra dentro da função 'executa'
-  extern vars::cObject local;
 
   class cInst;
   class cRotulo;
   
   // Ainda não totalmente testado!
-  class banco
-  {
-    private:
+  class banco {
+   private:
     banco(){};
-    static int lastID;
+    static uint lastID;
     static int def_level;
     
-    public:
-    static std::vector<std::map<int, cInst>> instrucoes;
+   public:
+    typedef std::list<std::string> StrList_t;
+    static std::vector<std::map<uint, cInst>> instrucoes;
     static std::map<std::string, cRotulo> rotulos;
     
-    static int getUniqueID()
+    static uint getUniqueID()
     {
-      static int nextID=0;
+      static uint nextID=0;
       lastID = nextID;
       return nextID++;
     }
@@ -45,7 +42,7 @@
     static cInst* addInst(std::string inst);
     
     // TESTADO
-    static void remInst(int ID);
+    static void remInst(uint ID);
     static void remLast();
     
     // Determina o def_level.
@@ -59,34 +56,32 @@
     
     // Retorna um ponteiro pra instrução referenciada, e um inteiro
     // que indica o level onde essa instrução está armazenada.
-    static std::pair<cInst*, int> getInst(int ID);
+    static std::pair<cInst*, uint> getInst(uint ID);
     
     // CONSIDERADO TESTADO
     static std::string str();
-    static std::list<std::string> strList();
-    static std::list<std::string> rotList();
+    static StrList_t strList();
+    static StrList_t rotList();
   };
   
   // Ainda não testado!
   // É preciso que ele seja um matcher pois retorna multiplos significados.
   // e para tanto precisa preencher sua variável de escopo e suas matchWord`s.
-  class cRotulo : public pMatch::matcher
-  {
+  class cRotulo : public pMatch::matcher {
     public:
     std::string nome;
-    std::list<int> instID;
+    std::list<uint> instID;
     
     // Simples d+ portanto não foi testado:
-    cRotulo(){}
-    cRotulo(std::string nome){ this->nome=nome; }
+    cRotulo() {}
+    cRotulo(std::string nome) { this->nome=nome; }
     
     // Simples d+ portanto não foi testado:
-    void addInst(int reference){ this->instID.push_back(reference); }
+    void addInst(uint reference) { this->instID.push_back(reference); }
     
-    bool match(std::string, int pos);
+    bool match(std::string, uint pos);
     
-    std::string str()
-    {
+    std::string str() {
       std::string str;
       std::ostringstream oss;
       for(auto& id : instID)
@@ -110,8 +105,8 @@
     cExpressao();
 
     // Used to parse out a expression from a string.
-    cExpressao(std::string exp, int& pos,
-        const std::string& delim=";,", Scope scope= Scope());
+    cExpressao(std::string exp, uint& pos,
+        const std::string& delim = ";,", Scope scope = Scope::empty);
 
     packToken eval(Scope scope) {
       return exp.eval(scope);
@@ -135,14 +130,12 @@
     // por exemplo: " a = b; b < 3; c > 4 " contém 3 expressões.
     std::list<cExpressao> expList;
 
-    void readOperand(std::string contexto, int& pos);
-    void validate(std::string);
-    void build(std::string);
+    void build(std::string, uint* fim);
     
     public:
     cContexto(){}
     cContexto(std::string);
-    cContexto(std::string, int& pos);
+    cContexto(std::string, uint& pos);
     
     // Avalia o contexto com base nas variáveis globais e locais.
     // Retorna true caso o contexto seja verdadeiro segundo as variáveis dadas.
@@ -162,32 +155,35 @@
     }
   };
 
-  
   // Testado!
-  class cSignificado
-  {
-    public:
-    std::string driver;
-    
-    // Lista das variáveis e as posições de inserção de seus valores:
-    std::list<std::pair<std::string,int>> variaveis;
-    
-    std::string texto;
-    
-    cSignificado(){}
-    cSignificado(const char* significado, int& pos);
-    cSignificado(std::string significado, int& pos);
+  class cSignificado {
+    // Keep the compiled code:
+    CodeParser parser;
+
+    // Used for str()
+    std::string raw_code;
+
+   public:
+    cSignificado() {}
+    cSignificado(const char* significado, uint& pos);
+    cSignificado(std::string significado, uint& pos);
+
+    void compile(const char* significado, uint& pos);
+    void compile(std::string significado, uint& pos);
+
+    uint size() { return parser.size(); }
+
+    void exec(const Scope& scope);
     
     std::string str();
   };
   
   // Testado!
-  class cInst
-  {
-    int ID;
+  class cInst {
+    uint ID;
     
     // Não utilizados ainda. TODO: verificar se serão utilizados.
-    //int prioridade=1;
+    //instt prioridade=1;
     //bool execOnce=false;
     
     public:
@@ -197,20 +193,19 @@
 //       é preciso remover suas referencias da construtora antes.
 // NOTE: A lista que deveria ser removida é referencia pela função str.
     // Lista de categorizações:
-    std::list<std::string> lRotulos;
+    typedef std::list<std::string> LabelList_t;
+    LabelList_t lRotulos;
     
     // Lista de guardas:
     cContexto contexto;
     
     // Lista de significados:
-    std::list<cSignificado> lSignificado;
+    cSignificado significado;
     
     public:
     pMatch::cVar var;
-    
-    //pMatch::arrayClass getPadrao(){ return this->padrao; }
-    //std::list<std::string> getContextos(){ return this->lContexto; }
-    std::list<cSignificado> getSignificados(){ return this->lSignificado; }
+
+    void exec(const Scope& scope) { significado.exec(scope); }
     
     private:
     // Abaixo as classes listam os caracteres delimitadores
@@ -236,21 +231,14 @@
     short fimContexto=-1;
     short fimSignificado=-1;
     
-    // TODO: Adicionar a validação do significado no formato:
-    // (#!stdout:)? (texto|\'texto\'|\"texto\") ;
-    void validate(std::string inst);
-    
-    void buildRotulo(std::string rotulo);
-    void buildPadrao(std::string padrao);
-    void buildContexto(std::string contexto);
-    void buildSignificado(std::string significado);
-    void build(std::string inst);
+    void buildRotulo(std::string rotulo, uint* fim);
+    void build(const std::string& inst);
     
     public:
     cInst();
-    cInst(const char* inst, int ID);
-    cInst(std::string inst, int ID);
-    //class: padrao - contexto => significado
+    cInst(const char* inst, uint ID);
+    cInst(const std::string& inst, uint ID);
+    //class: padrao - contexto { significado }
     
     bool match(std::string texto);
     
@@ -259,15 +247,6 @@
 
 // * * * * * Funções de uso das instruções: * * * * *
   
-  // TODO: Remover esse prototipo:
-  // bool avaliaContexto(
-  //   std::map<std::string, vars::cObject> globalVars,
-  //   pMatch::lVar localVars,
-  //   std::list<std::string> contextos
-  // );
-  
   void executa(cInst inst, pMatch::tInterpretacao);
 
-  //void executa(cInst inst, pMatch::tInterpretacao tInt);
-  
 #endif

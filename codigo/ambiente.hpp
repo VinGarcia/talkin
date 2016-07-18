@@ -19,10 +19,6 @@ void inicializa_banco();
 
 namespace ambiente
 {
-  // Variáveis globais
-  extern vars::cObject* global;
-  extern Scope scope;
-  
   // Drivers:
   class driver
   {

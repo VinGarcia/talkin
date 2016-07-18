@@ -17,35 +17,41 @@ using namespace ambiente;
 
 #define PRINT_LIST() for(auto& a : banco::strList()) cout << "      " << a << endl
 
+void COMPARE(const banco::StrList_t& a, const banco::StrList_t& b) {
+
+  REQUIRE(a.size() == b.size());
+
+  banco::StrList_t::const_iterator ita = a.begin();
+  banco::StrList_t::const_iterator itb = b.begin();
+
+  while (ita != a.end() && itb != b.end()) {
+    CHECK(*ita == *itb);
+    ++ita;
+    ++itb;
+  }
+}
+
 TEST_CASE("banco", "[banco]") {
 
   /*
    * Teste do banco:
    */
 
-  #if NUMBER==objectClass || NUMBER==1 || NUMBER==ALL
-  {
-    using namespace pMatch;
+  GIVEN("That it should manage instructions") {
+
+    banco::StrList_t expected_list;
     
-    cout << " * * * * * TESTE banco::addInst() * * * * *\n\n";
-    
-    cout << "  @Testes com banco::addInst:" << endl << endl;
-    
-    try{
-    cout << 1 << endl;
-    cout << "Teste inst[1][0]: «rot: \"pad\" - contx => \"sig\";»" << endl;
-    banco::addInst("rot: pad - contx => sig");
-    PRINT_LIST(); cout << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 2 << endl;
-    cout << "Teste inst[1][0]: «rot: \"pad\" - contx => \"sig\";»" << endl;
-    cout << "Teste inst[1][1]: «rot2: \"pad2\" - contx2 => \"sig2\";»" << endl;
-    banco::addInst("rot2: pad2 - contx2 => sig2");
-    PRINT_LIST(); cout << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
+    THEN("It should add instructions correctly") {
+      
+      expected_list.push_back("inst[1][0]: «rot: \"pad\" - contx { talkin('sig') }»");
+      REQUIRE_NOTHROW(banco::addInst("rot: \"pad\" - contx { talkin('sig') }"));
+      COMPARE(banco::strList(), expected_list);
+      
+      expected_list.push_back("inst[1][1]: «rot2: \"pad2\" - contx2 { talkin('sig2') }»");
+      REQUIRE_NOTHROW(banco::addInst("rot2: \"pad2\" - contx2 { talkin('sig2') }"));
+      COMPARE(banco::strList(), expected_list);
+    }
+    /*
     cout << "  @Teste com o remInst()" << endl << endl;
     
     try{
@@ -64,14 +70,14 @@ TEST_CASE("banco", "[banco]") {
     try{
     cout << 4 << endl;
     cout << "Teste Hello World!" << endl;
-    banco::addInst("[Oo]la! => #!stdout: Hello World!");
+    banco::addInst("\"[Oo]la!\" { print('Hello World!') }");
     cout << "      "; banco::execInst("Ola!"); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
     try{
     cout << 4.1 << endl;
     cout << "Teste Hello World!" << endl;
-    banco::addInst("start! => ola!");
+    banco::addInst("\"start!\" { talkin('ola!') }");
     cout << "      "; banco::execInst("start!"); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
@@ -80,10 +86,11 @@ TEST_CASE("banco", "[banco]") {
     try{
     cout << 5 << endl;
     cout << "Teste hello world!" << endl;
-    banco::addInst("(\"[Hh]ello [wW]orld!*\")v; => #!stdout: @v;");
+    banco::addInst("\"(\"[Hh]ello [wW]orld!*\")v;\" { print(v) }");
     cout << "      "; banco::execInst("hello world!"); cout << endl;
     }catch(const char* c){ cout << string("error: ") + c << endl; }
     
+    // */
     /*
     cout << "  @Teste utilizando charClass`s" << endl << endl;
     
@@ -195,7 +202,6 @@ TEST_CASE("banco", "[banco]") {
     }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
 // */
   }
-  #endif
 }
 
 /* * * * * END TEST banco * * * * */

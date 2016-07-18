@@ -11,10 +11,6 @@ int main(int argc, char* argv[])
   try{
     // Construir:
     inicializa_banco();
-  
-    // Carregar drivers:
-    drivers["stdout"] = new driver_stdout();
-    drivers["talkin"] = new driver_talkin();
     
     // Carrego as instruções 
     std::ifstream file("vocabulario.talk");

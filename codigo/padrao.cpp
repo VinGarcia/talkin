@@ -15,7 +15,7 @@ using namespace pMatch;
 // Construtora da Classe de caracteres:
 pMatch::charClass::charClass(string format) : string(format) {
   // Length do formato:
-  int lenF = format.length();
+  uint lenF = format.length();
   
   /* * * * * * * Inicio dos Testes de Validade * * * * * * */
   
@@ -43,7 +43,7 @@ pMatch::charClass::charClass(string format) : string(format) {
   
     // Verificando se é uma classe ou uma classe inversa,
     // Se for uma classe a posição de inicio é 2 se for inversa é 3.
-    int j = format[1]!='^'?2:3;
+    uint j = format[1]!='^'?2:3;
     
     // Continuando com os testes:
     
@@ -93,12 +93,12 @@ pMatch::charClass::charClass(const char* format) :
   charClass(string(format)) {}
 
 // /*
-bool pMatch::charClass::match(string input, int pos)
+bool pMatch::charClass::match(string input, uint pos)
 { return _match(input[pos], this->invert); }
 bool pMatch::charClass::match(char input)
 { return _match(input, this->invert); }
 
-bool pMatch::charClass::imatch(string input, int pos)
+bool pMatch::charClass::imatch(string input, uint pos)
 { return _match(input[pos], !this->invert); }
 bool pMatch::charClass::imatch(char input)
 { return _match(input, !this->invert); }
@@ -108,18 +108,18 @@ bool pMatch::charClass::_match(char input, bool invert)
     charClass format = *this;
 
     // Length do formato:
-    int lenF = format.length();
+    uint lenF = format.length();
     
     // * * * * * * * Inicio da Execução * * * * * * *
     
-    int j;
+    uint j;
     // Iterando sobre a string format
     for(j=0; format[j]; j++)
     {
       // Caso o format seja do tipo: "[a-z]"
       if( j != 0 && j != lenF-1 && format[j] == '-')
       {
-        int ini, fim;
+        uint ini, fim;
         if(format[j-1]<format[j+1])
           {ini = j-1; fim = j+1;}
         else
@@ -175,16 +175,16 @@ bool pMatch::charClass::_match(char input, bool invert)
  *          (foi baseado na semantica do LEX, que acredito ser padrão)
  *  
  */
-char pMatch::charClass::find(string input, int& pos)
+char pMatch::charClass::find(string input, uint& pos)
 { return _find(input, pos, this->invert); }
-char pMatch::charClass::ifind(string input, int& pos)
+char pMatch::charClass::ifind(string input, uint& pos)
 { return _find(input, pos, !this->invert); }
-char pMatch::charClass::_find(string input, int& pos, bool invert)
+char pMatch::charClass::_find(string input, uint& pos, bool invert)
 {
   charClass format = *this;
   
-  int len = input.length();
-  int i;
+  uint len = input.length();
+  uint i;
   
   if(pos<0 || pos>len)
     throw "Em pMatch::charClass::find() - Param 'pos' inválido";
@@ -217,15 +217,15 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
  *
  */
 // /*
-  pMatch::charClass pMatch::charClass::getClass(string format, int& pos)
+  pMatch::charClass pMatch::charClass::getClass(string format, uint& pos)
   {
-    int i = pos;
+    uint i = pos;
     
     // Tratamento dos parâmetros:
-    if(pos<0 || (unsigned)pos > format.length())
+    if(pos<0 || pos > format.length())
       throw "Variável pos inválida! pMatch::charClass::getClass";
     
-    if((unsigned)pos == format.length())
+    if(pos == format.length())
       throw "String Vazia! pMatch::charClass::getClass";
     
     // Caso haja um caractere de escape.
@@ -261,7 +261,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     // E para permitir as classes: "[^]abc]" e "[^]]":
     if(format[i-1]=='^') i++;
     
-    if( (unsigned)i < format.length() )
+    if( i < format.length() )
     
       // Para cada caractere a partir da posição atu[abc]al.
       for(; format[i]; i++)
@@ -314,7 +314,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
    *         
    */
   pMatch::strClass::strClass(string str) {
-    int pos=0;
+    uint pos=0;
     
     // Tratando um erro possível:
     if(str[str.length()-1] == '\\')
@@ -337,14 +337,14 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
    *         note que a strClass("").match(str,pos) retorna true sempre.
    *
    */
-  bool pMatch::strClass::match(string input, int pos) {
+  bool pMatch::strClass::match(string input, uint pos) {
     // Limpa a lista antiga:
     this->match_word.clear();
     
-    int len = this->size();
+    uint len = this->size();
     strClass::iterator it = this->begin();
     
-    for(int i=0; i<len; i++, it++) {
+    for(uint i=0; i<len; i++, it++) {
       if(!it->match(input[pos+i]))
         return false;
     }
@@ -363,8 +363,8 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
    *         Note que aceita-se a string vazia.        
    * 
    */
-  pMatch::tWord pMatch::strClass::find(string input, int pos) {
-    int lenF = this->size();
+  pMatch::tWord pMatch::strClass::find(string input, uint pos) {
+    uint lenF = this->size();
     
     // Se o formato for de string vazia:
     if(lenF == 0)
@@ -373,7 +373,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     
     strClass::iterator it=this->begin();
     
-    int i=pos;
+    uint i=pos;
     
     // Encontra o primeiro caractere do input compatível com o formato:
     (*it).find(input, i); 
@@ -394,11 +394,11 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     return tWord("", i);
   }
   
-  pMatch::strClass pMatch::strClass::getClass(string input, int& pos, string stop_on) {
-    int start = pos;
+  pMatch::strClass pMatch::strClass::getClass(string input, uint& pos, string stop_on) {
+    uint start = pos;
     char c;
     
-    if(pos<0 || (unsigned)pos > input.length())
+    if(pos<0 || pos > input.length())
       throw "variável pos com valor inválido! pMatch::strClass::getClass";
      
     while(1) {
@@ -432,13 +432,13 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
 /* * * * * START arrayClass * * * * */
   
   void pMatch::arrayClass::build(string str) {
-    int antes=0;
-    int pos=0;
+    uint antes=0;
+    uint pos=0;
     
     // Posição de inicio do ultimo charClass lido,
     // importante para a construtora do repeater: "[123]*"
-    int cc_pos;
-    bool in_class;
+    uint cc_pos;
+    bool in_class = false;
     
     while( true ) {
       // Caso encontre um parentesis antes do fim do str:
@@ -511,39 +511,44 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     build(str);
   }
   
-  pMatch::arrayClass::arrayClass(string str, int& pos) {
-    int fim;
-    int pCount=0;
+  pMatch::arrayClass::arrayClass(string str, uint* _pos) {
+    uint pos = *_pos;
+    uint fim;
+    uint pCount=0;
+
+    while (isblank(str[pos])) ++pos;
     
-    if(str[pos] != '"')
+    if(str[pos] != '"') {
       throw "`str` inválido! pMatch::arrayClass::arrayClass()";
-    
-    // Encontre o fecha aspas:
-    for(fim=pos+1; str[fim]; fim++) {
-      if(str[fim] == '"' && str[fim-1] != '\\' && pCount==0) break;
-      if(str[fim] == '(') pCount++;
-      if(str[fim] == ')') pCount--;
     }
     
-    if(!str[fim]) {
-      if(pCount==0)
+    // Encontre o fecha aspas:
+    for (fim = pos+1; str[fim]; fim++) {
+      if (str[fim] == '"' && str[fim-1] != '\\' && pCount==0) break;
+      if (str[fim] == '(') pCount++;
+      if (str[fim] == ')') pCount--;
+    }
+    
+    if (str[fim] == '\0') {
+      if (pCount == 0) {
         throw "Faltou um fecha aspas!: pMatch::arrayClass::arrayClass()";
-      else
+      } else {
         throw "Faltou um fecha parentesis!: pMatch::arrayClass:arrayClass()";
+      }
     }
     
     build(str.substr(pos+1,fim-1-pos));
     
-    pos = fim+1;
+    *_pos = fim+1;
   }
   
   // Função privada recursiva de matchs do array class.
   // Chamada internamente pela função publica match().
   list<pMatch::tInterpretacao>
   pMatch::arrayClass::sub_match(string str,
-      int pos, list<matcher*>::iterator it) {
+      uint pos, list<matcher*>::iterator it) {
 
-    int ini=pos, p_atual=pos;
+    uint ini=pos, p_atual=pos;
     list<tInterpretacao> lInt;
     list<tInterpretacao>::iterator aux, end;
     
@@ -555,7 +560,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     cVar var;
     
     // Enquanto não acabar a str nem a lista, continue:
-    for(; (unsigned)p_atual<str.length() && it != lista.end(); it++) {
+    for(; p_atual<str.length() && it != lista.end(); it++) {
       // Se não conseguir terminar o match:
       if(!(*it)->match(str,p_atual)) {
         lInt.pop_front();
@@ -629,11 +634,11 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
       return lInt;
   }
   
-  bool pMatch::arrayClass::match(string str, int pos) {
+  bool pMatch::arrayClass::match(string str, uint pos) {
     return match(str, pos, false);
   }
   
-  bool pMatch::arrayClass::match(string str, int pos, bool raiz) {
+  bool pMatch::arrayClass::match(string str, uint pos, bool raiz) {
     // Limpa as interpretações antigas:
     this->var.lInt.clear();
     this->match_word.clear();
@@ -667,7 +672,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     return true;
   }
   
-  pMatch::tWord pMatch::arrayClass::find(std::string input, int pos) {
+  pMatch::tWord pMatch::arrayClass::find(std::string input, uint pos) {
 
 /* ignorando a implementação da função.
 
@@ -702,7 +707,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
   // "<arrayClass_em_formato_string>" e <nome_de_objeto>
   // podendo alternar os dois tipos de formatos sempre separados por ','.
   void pMatch::blockClass::leLista(string str) {
-    int i=0;
+    uint i=0;
     static charClass delimiter("[,\"a-zA-Z0-9_]");
     
     if(str.empty())
@@ -717,7 +722,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
 
       if(str[i]=='"')
         // Se for um arrayClass:
-        lista.push_back(new arrayClass(str, i));
+        lista.push_back(new arrayClass(str, &i));
       else
         // Se encontrar um objectClass:
         lista.push_back(new objectClass(str, i));
@@ -733,10 +738,10 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
   
   // Verifica se a string recebida pela construtora é
   // compatível com o formato de um objeto blockClass.
-  void pMatch::blockClass::validate(string str, int fecho=0) {
+  void pMatch::blockClass::validate(string str, uint fecho=0) {
     // NOTA: fecho é a posição do fecha parentesis.
-    int len = str.length();
-    int aux;
+    uint len = str.length();
+    uint aux;
     
     // Teste de validade da entrada:
     if(str[0] != '(')
@@ -752,10 +757,10 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     // Verifique se todos os itens da lista estão separados por virgula
     // e sem caracteres incorretos:
     bool aspas=false, virgula=true, object_name=false;
-    int parentesis=0;
+    uint parentesis=0;
     charClass invalChar = charClass("[:()]");
     charClass blank = charClass("[ \n\t]");
-    for(int i=1 ; i<fecho; i++) {
+    for(uint i=1 ; i<fecho; i++) {
       if(!object_name && !aspas) {
         if(invalChar.match(str[i]))
           throw "caractere inválido na lista do bloco!: pMatch::blockClass()";
@@ -816,8 +821,8 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
   }
   
   // (fimIdx é o indice do fecha parentesis)
-  void pMatch::blockClass::build(string str, int fimIdx) {
-    int len = str.length();
+  void pMatch::blockClass::build(string str, uint fimIdx) {
+    uint len = str.length();
     
     if(str[len-1]=='*') this->repeater = true;
     
@@ -841,10 +846,10 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
   pMatch::blockClass::blockClass(const char* str):
   blockClass(string(str)) {}
   pMatch::blockClass::blockClass(string str) {
-    int len = str.length();
+    uint len = str.length();
     
     // Guarda o fim do parentesis:
-    int fim;
+    uint fim;
     // Encontrando o parentesis de fechamento:
     for(fim=len-1; str[fim]!=')'; fim--);
     
@@ -855,11 +860,11 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     build(str, fim);
   }
   
-  pMatch::blockClass::blockClass(string str, int& pos) {
+  pMatch::blockClass::blockClass(string str, uint& pos) {
     // A posição do fecha parentesis:
-    int inicio=pos;
-    int fecho;
-    int pCount=0;
+    uint inicio=pos;
+    uint fecho;
+    uint pCount=0;
     string resp;
     
     if(str[inicio]!='(')
@@ -896,7 +901,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
   }
 // /* 
   list<pMatch::tInterpretacao>
-  pMatch::blockClass::sub_match(string str, int pos, int rep_num) {
+  pMatch::blockClass::sub_match(string str, uint pos, uint rep_num) {
     list<tInterpretacao> lInt;
     list<tInterpretacao> lInt_aux;
     vector<matcher*>::iterator it = lista.begin();
@@ -906,7 +911,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     oss << "[" << rep_num << "]";
     string rep_name = oss.str();
     
-    if((unsigned)pos>=str.length()) return lInt;
+    if(pos>=str.length()) return lInt;
     
     // Para cada item do bloco:
     for( ; it != lista.end(); it++, rep_num++) {
@@ -920,7 +925,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
         if(this->repeater) {
           auto it_lInt=matched_lInt.begin();
           for( ; it_lInt != matched_lInt.end(); it_lInt++) {
-            if((unsigned)pos+it_lInt->word.length() >= str.length()) continue;
+            if(pos+it_lInt->word.length() >= str.length()) continue;
             
             // Coleto as interpretações do sub-match:
             // As interpretações para a variavel: [rep_num+1]
@@ -960,7 +965,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
     return lInt;
   }
   
-  bool pMatch::blockClass::match(string input, int pos) {
+  bool pMatch::blockClass::match(string input, uint pos) {
     // Limpa a lista de interpretações:
     this->var.lInt.clear();
     this->match_word.clear();
@@ -994,7 +999,7 @@ char pMatch::charClass::_find(string input, int& pos, bool invert)
 /* Backup da versão funcional e testada do blockClass::match
    (antes dele também virar um repeater.
    TODO: remover essa versão quando a nova estiver testada.
-  bool pMatch::blockClass::match(string input, int pos) {
+  bool pMatch::blockClass::match(string input, uint pos) {
     // Limpa a lista de interpretações:
     this->var.lInt.clear();
     this->match_word.clear();
@@ -1021,14 +1026,14 @@ cout << "var: " << var.str() << endl;
   }
 // */
   
-  pMatch::tWord pMatch::blockClass::find(string input, int pos) {
-    int i=pos;
+  pMatch::tWord pMatch::blockClass::find(string input, uint pos) {
+    uint i=pos;
 /* ignorando a implementação:
     bool bMatch = false;
     
     vector<matcher*>::iterator it;
     
-    for(i=pos; (unsigned)i<input.length(); i++)
+    for(i=pos; i<input.length(); i++)
       for(it = lista.begin(); it!=lista.end(); it++)
         if((*it)->match(input, i)) bMatch = true;
     
@@ -1066,99 +1071,59 @@ cout << "var: " << var.str() << endl;
   
 /* * * * * START objectClass * * * * */
 
-  void pMatch::objectClass::validate(string str) {
-    static charClass invalid("[:(),]");
-    int pos=0;
+  #define isvariablestart(c) (isalpha(c) || c == '_')
+  void pMatch::objectClass::build(string str, uint* fim) {
+    uint pos = fim ? *fim : 0;
 
-    if(str.length() == 0)
-      throw "Um objectClass não pode ter nome vazio! pMatch::objectClass::validate()";
-    
-    // Verifica se há algum caractere inválido no nome:
-    if( invalid.find(str,pos) )
+    while (isspace(str[pos])) ++pos;
+
+    if (!isvariablestart(str[pos])) {
       throw "Caractere inválido no nome!: pMatch::objectClass()";
-  }
-  
-  void pMatch::objectClass::build(string str) {
-    int i=0;
-    charClass blank  = charClass("[ \n\t]");
-    charClass nblank = charClass("[^ \n\t]");
-    
-    // Flag blank (se o char lido é branco, fblank = true)
-    bool fblank=false;
-    
-    // Encontre o primeiro caractere não branco.
-    nblank.find(str, i);
-    
-    // Agora leia a string e adicione os caracteres:
-    for(; str[i]; i++) {
-      // Se o caractere encontrado for branco
-      // e o último também era:
-      if(blank.match(str[i]) && fblank)
-        continue;
-      
-      // Se encontrar um caractere branco:
-      if(blank.match(str[i]) && !fblank)
-        fblank = true;
-      
-      // Se encontrar um caractere não branco:
-      if(nblank.match(str[i]) && fblank)
-        fblank = false;
-      
-      if(fblank)
-        (*this) += ' ';
-      else
-        (*this) += str[i];
     }
-    
-    // Se o último caractere inserido era um caractere em branco:
-    if(blank.match(str[i-1]))
-      // Remova-o
-      this->pop_back();
-    
-    // fim da construção
+
+    std::stringstream ss;
+    ss << str[pos];
+    ++pos;
+    while (isalnum(str[pos]) || str[pos] == '_') {
+      ss << str[pos];
+      ++pos;
+    }
+
+    if (fim) *fim = pos;
+    name = ss.str();
   }
 
-  // Após a execução pos deve apontar para a posição imediatamente
-  // após o objeto.
-  pMatch::objectClass::objectClass(string str, int& pos) : string() {
-    static charClass delimiter("[,)]");
-    string nome;
+  // After the execution `pos` should point to the character just
+  // after the first delimiter: ',' or ')'
+  pMatch::objectClass::objectClass(string str, uint& pos) {
+    build(str, &pos);
+    while (isspace(str[pos])) ++pos;
 
-    // Marque a posição de inicio:
-    int inicio = pos;
-    
-    // Encontra o final do nome do objeto:
-    delimiter.find(str, pos);
-    
-    // Extraia o nome do objectClass:
-    nome = str.substr(inicio,pos-inicio);
-    
-    validate(nome);
-    build(nome);
-    
-    // Se str[pos] != '\0'
-    if(str[pos]) pos++;
+    if (str[pos] == '\0') return;
+    if (str[pos] != ',' && str[pos] != ')') {
+      throw "Unexpected character following name! objectClass::objectClass(string, int&)";
+    }
+    ++pos;
   }
   
   pMatch::objectClass::objectClass(const char* str) :
     objectClass(string(str)) {}
     
-  pMatch::objectClass::objectClass(string str):string() {
-    validate(str);
+  pMatch::objectClass::objectClass(string str) {
     build(str);
   }
   
-  bool pMatch::objectClass::match(string str, int pos) {
+  bool pMatch::objectClass::match(string str, uint pos) {
     // Limpa a lista antiga:
     this->var.lInt.clear();
     this->match_word.clear();
     
-    if(banco::rotulos.count(*this)==0) return false;
+    if(banco::rotulos.count(name) == 0) return false;
     
-    bool resp = banco::rotulos[*this].match(str,pos);
+    bool resp = banco::rotulos[name].match(str,pos);
     
-    this->var.lInt.splice(this->var.lInt.end(), banco::rotulos[*this].var.lInt);
-    this->match_word.splice(match_word.end(), banco::rotulos[*this].getMatch());
+    this->var.lInt.splice(this->var.lInt.end(), banco::rotulos[name].var.lInt);
+    this->match_word.splice(match_word.end(), banco::rotulos[name].getMatch());
     
     // Apaga os nomes das variáveis para evitar que sejam lidas.
     // (lembrando que o objetos não retornam variaveis internas)

@@ -1,3 +1,6 @@
 [submodule "codigo/exp-parser"]
 	path = codigo/exp-parser
 	url = git@github.com:VinGarcia/cpp-expression-parser.git
+[submodule "codigo/code-parser"]
+	path = codigo/code-parser
+	url = git@github.com:VinGarcia/cpp-code-parser.git

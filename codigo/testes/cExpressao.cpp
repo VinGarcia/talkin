@@ -14,7 +14,7 @@ TEST_CASE("cExpressao", "[cExpressao]") {
   cExpressao exp;
   calculator c;
   std::string expected;
-  int pos;
+  uint pos;
 
   GIVEN("that it should build ok")
   {

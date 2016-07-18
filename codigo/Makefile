@@ -13,13 +13,14 @@ OBJS =  ambiente.o padrao.o banco.o vars.o
 BIN  =  talkin
 MAIN  =  main.cpp
 
-# Subdirectories:
-VPATH=exp-parser
-MODULES=exp-parser
-FLAGS+=-I./exp-parser
-OBJS+=exp-parser/shunting-yard.o exp-parser/packToken.o
+# Module files:
+SUB_OBJS=$(addprefix code-parser/exp-parser/, shunting-yard.o packToken.o functions.o)
+SUB_OBJS+=code-parser/code-parser.o
+OBJS += $(SUB_OBJS)
 
-$(BIN): $(MODULES) $(OBJS)
+FLAGS+= $(addprefix -I./, $(dir $(SUB_OBJS)))
+
+$(BIN): $(OBJS)
 	@echo ""
 	@echo " - Compilando \"$(BIN)\" -"
 	@echo ""
@@ -31,8 +32,11 @@ $(BIN): $(MODULES) $(OBJS)
 	@echo ""
 	@$(CC) $(FLAGS) $< -c
 
-exp-parser:
-	@make -C exp-parser/
+$(SUB_OBJS):
+	@echo
+	@echo "Checking submodules..."
+	@make -C $(dir %@)/
+	@echo
 
 number:
 	@echo "#define NUMBER $(NUMBER)" > testes/number.h

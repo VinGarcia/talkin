@@ -17,7 +17,7 @@ TEST_CASE("cContexto", "[cContexto]") {
 
   string expected;
   cContexto con;
-  int pos;
+  uint pos;
 
   GIVEN("that it should build ok") {
     

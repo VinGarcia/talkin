@@ -72,7 +72,7 @@ TEST_CASE("strClass", "[strClass]") {
     
     string s("testando com afeto");
     
-    int pos;
+    uint pos;
     bool b;
     
     // Testes:
@@ -125,7 +125,7 @@ TEST_CASE("strClass", "[strClass]") {
     
     string s("testando com carinho!");
     
-    int pos;
+    uint pos;
     tWord str;
     
     // Testes:
@@ -195,7 +195,7 @@ TEST_CASE("strClass", "[strClass]") {
     using namespace pMatch;
     
     strClass s;
-    int start, pos;
+    uint start, pos;
     
     // Testes:
     

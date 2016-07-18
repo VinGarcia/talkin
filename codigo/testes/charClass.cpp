@@ -286,7 +286,7 @@ TEST_CASE("charClass", "[charClass]") {
     
     string s("testando");
     
-    int pos;
+    uint pos;
     char c;
     
     cout << " * * * * * charClass::find() * * * * *\n\n";
@@ -506,7 +506,7 @@ TEST_CASE("charClass", "[charClass]") {
     using namespace std;
     using pMatch::charClass;
     
-    int pos;
+    uint pos;
     string resp;
     
     try
@@ -628,9 +628,7 @@ TEST_CASE("charClass", "[charClass]") {
       cout << "Teste " << "[^][^\\]" << endl;
       try{ cout << "      " << charClass("[^][^\\]").str() << endl << endl; }
       catch(const char* c) { cout << "      Error" << c << "\n\n"; }
-    }
-    catch(int e)
-    {
+    } catch(int e) {
       cout << "  Unexpected error during test \n  Error number: " << e << endl;
     }
 

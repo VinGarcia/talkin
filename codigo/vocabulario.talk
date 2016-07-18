@@ -1,33 +1,27 @@
-abra o ("firefox","chrome")p => #!stdout: abrindo @p;
+"abra o ("firefox","chrome")p" { print('abrindo %s' % p['$']) };
 
-(var_name)v; vale 3? => #!talkin: temp = @v;; temp;
+"(var_name)v; vale 3?" { print(global[v] == 3) };
 
-temp - temp == 3 => #!stdout: sim!; #!stdout: @temp;;
+"ola" { print('Ola usuario!'); }
 
-temp - temp > 3 => #!stdout: nao!; #!stdout: @temp;;
+"Hello World" { talkin('hw'); }
 
-temp - temp < 3 => #!stdout: nao!; #!stdout: @temp;;
+"hw" { print('Hello World!!!') }
 
-ola => #!stdout: Ola usuario!;
+program_name: "firefox"
 
-Hello World => hw;
+program_name: "chrome"
 
-hw => #!stdout: Hello World!!!
+"abra o (program_name)p" { print('opening %s' % p['$']); }
 
-nome de programa: firefox
+"("te","tes")p1;("te","ste")p2" { print('testado!') }
 
-abra o (nome de programa)p => #!stdout: opening @p;
+"abra" - 3 != 3 { print("nao abriu!") }
 
-("te","tes")p1;("te","ste")p2 => #!stdout: testado!
+"abra" - 3 == 3 { print("abriu!") }
 
-abra - 3 != 3 => #!stdout: "nao abriu!"
+numero: "[0-9][0-9]*"
 
-abra - 3 == 3 => #!stdout: "abriu!"
+"set (var_name)v; = 3" { global[v] = 3 }
 
-var_name: [a-zA-Z_][a-zA-Z0-9_]*
-
-numero: [0-9][0-9]*
-
-set (var_name)v; = 3 => #!talkin: @v; = 3
-
-seja (var_name)v; = (numero)n; => #!talkin: @v; = @n;
+"seja (var_name)v; = (numero)n;" { global[v] = n; }

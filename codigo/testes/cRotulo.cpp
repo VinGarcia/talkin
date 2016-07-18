@@ -16,34 +16,23 @@ TEST_CASE("cRotulo", "[cRotulo]") {
    * Teste do cRotulo:
    */
 
-  #if NUMBER==objectClass || NUMBER==1 || NUMBER==ALL
-  {
+  GIVEN("That it is a matcher") {
     // TODO: Elaborar esse teste.
     using namespace pMatch;
     
     cRotulo* rot = &(banco::rotulos["teste"] = cRotulo("teste"));
     
-    cout << " * * * * * TESTE cRotulo.match() * * * * *\n\n";
+    THEN("It should match correctly") {
     
-    cout << "  @Testes com cRotulo(string):" << endl << endl;
-    
-    try{
-    cout << 1 << endl;
-    cout << "Teste \"\"" << endl;
-    rot->match("testando",0);
-    cout << "      \"" << rot->getMatch().str() << '"' << endl; cout << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-    
-    banco::addInst("teste: testando => #!stdout: working");
-    
-    try{
-    cout << 2 << endl;
-    cout << "Teste \"testando\"" << endl;
-    rot->match("testando",0);
-    cout << "      \"" << rot->getMatch().str() << '"' << endl; cout << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
+      REQUIRE_NOTHROW(rot->match("testando",0));
+      CHECK(rot->getMatch().str() == "");
+      
+      banco::addInst("teste: \"testando\" { print('working') }");
+      
+      REQUIRE_NOTHROW(rot->match("testando",0));
+      CHECK(rot->getMatch().str() == "testando");
+    }
   }
-  #endif
 }
 
 /* * * * * END TEST cRotulo * * * * */

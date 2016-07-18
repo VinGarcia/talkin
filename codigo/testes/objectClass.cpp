@@ -16,205 +16,98 @@ TEST_CASE("objectClass", "[objectClass]") {
    * Teste do objectClass:
    */
 
-  #if NUMBER==objectClass || NUMBER==1 || NUMBER==ALL
-  {
+  GIVEN("That it should build ok") {
 
     // Teste do objectClass:
-    using namespace pMatch;
+    using pMatch::objectClass;
     
     objectClass oc;
-    int pos;
+    uint pos;
+    std::string expected;
     
-    cout << " * * * * * TESTE objectClass() * * * * *\n\n";
+    THEN("It should work with a single argument") {
     
-    cout << "  @Testes com objectClass(string):" << endl << endl;
-    
-    try{
-    cout << 1 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("verbo");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 2 << endl;
-    cout << "Teste \"verbo dois\"" << endl;
-    oc = objectClass("verbo      dois");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 3 << endl;
-    cout << "Teste \"verbo tres\"" << endl;
-    oc = objectClass("    verbo      tres");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 4 << endl;
-    cout << "Teste \"verbo quatro\"" << endl;
-    oc = objectClass("    verbo      quatro    ");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    cout << "  @Testes com objectClass(string, pos):" << endl << endl;
-    
-    try{
-    cout << 5 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("verbo", pos=0);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 6 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("averbo", pos=1);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 7 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("  verbo  ", pos=1);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 8 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("verbo, verbula", pos=0);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 9 << endl;
-    cout << "Teste \"verbo\"" << endl;
-    oc = objectClass("Verbo, verbo  ) amacada", pos);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "verbo";
+      CHECK(objectClass("verbo").str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("verbo      dois").str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("    verbo      tres").str() == expected);
+      
+      expected = "ver";
+      CHECK(objectClass("    ver(bo      quatro    ").str() == expected);
 
-    try{
-    cout << 10.1 << endl;
-    cout << "Teste \"teste com espaco\"" << endl;
-    oc = objectClass(" teste com espaco, teste com espaco 2 ", pos=0);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "ver";
+      CHECK(objectClass("    ver,bo      quatro    ").str() == expected);
+    }
+    
+    THEN("It should work as a slave parser") {
+      expected = "verbo";
+      CHECK(objectClass("verbo", pos=0).str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("averbo", pos=1).str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("  verbo  ", pos=1).str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("verbo, verbula", pos=0).str() == expected);
+      
+      expected = "verbo";
+      CHECK(objectClass("Verbo, verbo  ) amacada", pos).str() == expected);
 
-    try{
-    cout << 10.2 << endl;
-    cout << "Teste #18" << endl;
-    oc = objectClass(" teste com espaco, teste com espaco 2 ", pos=0);
-    cout << "      #" << pos << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    try{
-    cout << 10.3 << endl;
-    cout << "Teste \"teste com espaco 2\"" << endl;
-    oc = objectClass(" teste com espaco, teste com espaco 2 ", pos);
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
+      expected = "teste_com_espaco";
+      CHECK(objectClass(" teste_com_espaco, teste_com_espaco_2 ", pos=0).str() == expected);
+      CHECK(pos == 18);
+      
+      expected = "teste_com_espaco_2";
+      CHECK(objectClass(" teste_com_espaco, teste_com_espaco_2 ", pos).str() == expected);
+      CHECK_NOTHROW(objectClass(" teste_com_espaco, teste_com_espaco_2 ", pos=18));
+      CHECK(pos == 38);
+    }
 
-    try{
-    cout << 10.4 << endl;
-    cout << "Teste #38" << endl;
-    oc = objectClass(" teste com espaco, teste com espaco 2 ", pos=18);
-    cout << "      #" << pos << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl; }
-    
-    cout << "  @Testes de validação do objectClass():" << endl << endl;
-    
-    try{
-    cout << 11 << endl;
-    cout << "Teste throwed" << endl;
-    oc = objectClass("Verb,o");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << "      " << "throwed" << endl << endl; }
-    
-    try{
-    cout << 12 << endl;
-    cout << "Teste throwed" << endl;
-    oc = objectClass("Verb:o");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << "      " << "throwed" << endl << endl; }
-    
-    try{
-    cout << 13 << endl;
-    cout << "Teste throwed" << endl;
-    oc = objectClass("Verb(o");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << "      " << "throwed" << endl << endl; }
-    
-    try{
-    cout << 14 << endl;
-    cout << "Teste throwed" << endl;
-    oc = objectClass("Verb)o");
-    cout << "      \"" << oc.str() << '"' << endl << endl;
-    }catch(const char* c){ cout << "      " << "throwed" << endl << endl; }
-    
-    try{
-    cout << 15 << endl;
-    cout << "Teste not throwed" << endl;
-    oc = objectClass("Verb.!@#$%^&*-'\"\t\n o");
-    cout << "      " << "not throwed" << endl << endl;
-    }catch(const char* c){ cout << "      " << "throwed" << endl << endl; }
+    THEN("It should report errors correctly") {
+      CHECK_NOTHROW(objectClass("Verb,o", pos=0));
+      CHECK_NOTHROW(objectClass("Verb)o", pos=0));
+
+      CHECK_THROWS(objectClass("Verb;o", pos=0));
+      CHECK_THROWS(objectClass("Verb:o", pos=0));
+      CHECK_THROWS(objectClass("Verb(o", pos=0));
+      CHECK_THROWS(objectClass("Verb.!@#$%^&*-'\"\t\n o", pos=0));
+    }
   }
-  #endif
     
-  /*
-   * Testando blockClass::match()
-   */
+  GIVEN("That it is a matcher") {
+    
+    using pMatch::objectClass;
 
-  #if NUMBER==match || NUMBER==2 || NUMBER==ALL
-  {
-    using namespace pMatch;
+    objectClass oc("teste");
     
-    objectClass oc = objectClass("teste");
-    
-    cout << " * * * * * TESTE objectClass::match() * * * * *\n\n";
-    
-    cout << "  @Testes com objectClass(string):" << endl << endl;
-    
-    try{
-    cout << 1 << endl;
-    cout << "Teste \"\"" << endl;
-    oc.match("testando",0);
-    cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-    
-    banco::addInst("teste: testando => #!stdout: working");
-    
-    try{
-    cout << 2 << endl;
-    cout << "Teste \"testando\"" << endl;
-    oc.match("testando",0);
-    cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-    
-    try{
-    cout << 2.1 << endl;
-    cout << "Teste \"testando\"" << endl;
-    oc.match("testestando",3);
-    cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-    
-    try{
-    cout << 2.2 << endl;
-    cout << "Teste \"testando\"" << endl;
-    oc.match("testestandoagora",3);
-    cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
-    
-    banco::addInst("teste: test => #!stdout: working");
-    
-    try{
-    cout << 3 << endl;
-    cout << "Teste \"testando|test\"" << endl;
-    oc.match("testestandoagora",3);
-    cout << "      \"" << oc.getMatch().str() << '"' << endl << endl;
-    }catch(const char* c){ cout << string("error: ") + c << endl << endl; }
+    THEN("It should match correctly") {
+
+      REQUIRE_NOTHROW(oc.match("testando",0));
+      CHECK(oc.getMatch().str() == "");
+      
+      banco::addInst("teste: \"testando\" { print('working') } ");
+      
+      REQUIRE_NOTHROW(oc.match("testando",0));
+      CHECK(oc.getMatch().str() == "testando");
+      
+      REQUIRE_NOTHROW(oc.match("testestando",3));
+      CHECK(oc.getMatch().str() == "testando");
+      
+      REQUIRE_NOTHROW(oc.match("testestandoagora",3));
+      CHECK(oc.getMatch().str() == "testando");
+      
+      banco::addInst("teste: \"test\" { print('working') }");
+      
+      REQUIRE_NOTHROW(oc.match("testestandoagora",3));
+      CHECK(oc.getMatch().str() == "testando|test");
+    }
   }
-  #endif
 }
 
 /* * * * * END TEST objectClass * * * * */

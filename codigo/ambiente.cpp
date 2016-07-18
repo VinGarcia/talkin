@@ -3,13 +3,10 @@
 #include <stdlib.h>
 
 #include "ambiente.hpp"
+#include "shunting-yard.h" // For Function class
 
 using namespace std;
 using namespace ambiente;
-
-// Variáveis globais
-vars::cObject* ambiente::global = new vars::cObject();
-Scope ambiente::scope(ambiente::global);
 
 // Drivers do talkin:
 std::map<std::string, driver*> ambiente::drivers;
@@ -17,17 +14,35 @@ std::map<std::string, driver*> ambiente::drivers;
 void inicializa_banco()
 {
   using namespace pMatch;
+
   
   // Instruções básicas do sistema:
   //banco::instrucoes[0][3]= cInst("anything: [!-~ \n\t]*",3);
 // TODO: fazer ele reconhecer a instrução abaixo usando o objeto "anything"
   banco::instrucoes[0][2]=
-  cInst("[!-~ \n\t]* => #!stdout: Comando nao reconhecido.\n  Atualmente so existem os comandos: 'ola', 'help' e 'exit'",2);
-  banco::instrucoes[0][1]= cInst("blank: [ \t\n]*",1);
+  cInst("\"[!-~ \n\t]*\" { print(\"Comando nao reconhecido.\\n  Atualmente so existem os comandos: 'ola', 'help' e 'exit'\") }",2U);
+  banco::instrucoes[0][1]= cInst("blank: \"[ \t\n]*\"",1U);
   //banco::instrucoes[0][0]=
   //cInst("#!talkin:[~-! \n\t]* => #!stdout: teste", 0);
   //cInst("#!talkin:(blank)(\"add\",\"rem\",\"show\")(blank)(anything) => #!stdout: teste", 0);
 }
+
+struct Startup_talkin {
+  // This singleton adds the talkin() function to the global namespace
+  // This happens before main() gets executed.
+  Startup_talkin() {
+    // Add talkin function to global scope:
+    Scope::default_global()["talkin"] = Function(&talkin, 1, args);
+  }
+
+  const char* args[1] = {"text"};
+  static packToken talkin(const Scope* scope) {
+    // Get a single argument:
+    std::string text = scope->find("text")->asString();
+    banco::execInst(text);
+    return packToken::None;
+  }
+} startup_talkin;
 
 void readVocab(ifstream& file)
 {
