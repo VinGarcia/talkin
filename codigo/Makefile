@@ -15,7 +15,7 @@ MAIN  =  main.cpp
 
 # Module files:
 SUB_OBJS=$(addprefix code-parser/exp-parser/, shunting-yard.o packToken.o functions.o)
-SUB_OBJS+=code-parser/code-parser.o
+SUB_OBJS+=$(addprefix code-parser/, code-parser.o generators.o)
 OBJS += $(SUB_OBJS)
 
 FLAGS+= $(addprefix -I./, $(dir $(SUB_OBJS)))

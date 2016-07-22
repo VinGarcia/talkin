@@ -40,9 +40,9 @@ TEST_CASE("cSignificado", "[cSignificado]") {
     then("it should parse multiple expressions") {
       const char* text;
 
-      text = "a=1; b=2; c=a+b";
+      text = "a=1;E; b=2; c=a+b";
       check_nothrow(cSignificado(text, pos=0));
-      check(text[pos] == '\0');
+      check(text[pos] == 'E');
 
       text = " { a=1; b=2; c=a+b } ";
       check_nothrow(cSignificado(text, pos=0));
@@ -64,7 +64,7 @@ TEST_CASE("cSignificado", "[cSignificado]") {
       TokenMap_t map;
       cSignificado sig;
       check_nothrow(sig.exec(&map));
-      check_nothrow(sig.compile("", pos=0));
+      check_throws(sig.compile("", pos=0));
       check_nothrow(sig.exec(&map));
     }
   }

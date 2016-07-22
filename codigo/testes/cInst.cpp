@@ -22,6 +22,7 @@ TEST_CASE("cInst", "[cInst]") {
   GIVEN("that it should build ok") {
     
     then("it should report errors correctly") {
+      // /*
       check_nothrow( cInst("teste: \"teste\" - teste { teste }", ID=0) );
 
       check_throws( cInst(":teste: \"teste\" - teste { teste }", ID=0) );
@@ -90,12 +91,13 @@ TEST_CASE("cInst", "[cInst]") {
       check_nothrow( cInst("rotulo: \"padrao\" - contexto { sig1; ; sig3 }", ID=0) );
       
       check_nothrow( cInst("rotulo: \"padrao\" - contexto { sig1; sig2; ; }", ID=0) );
+      // */
     }
 
     then("it should build with any kind of instruction") {
       
-      expected = "rotulo: \"padrao\" - contexto { \"significado\"; }";
-      check( cInst("rotulo: \"padrao\" - contexto { \"significado\"; }", ID=0).str() == expected );
+      // expected = "rotulo: \"padrao\" - contexto { \"significado\"; }";
+      // check( cInst("rotulo: \"padrao\" - contexto { \"significado\"; }", ID=0).str() == expected );
       
       /*
       expected = "rotulo: \"padrao\" - contexto { \"significado\"; }";

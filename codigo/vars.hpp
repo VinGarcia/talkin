@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "padrao.hpp"
-#include "shunting-yard.h"
+#include "./code-parser/exp-parser/shunting-yard.h"
 
 #ifndef TALKIN_VARS
 #define TALKIN_VARS

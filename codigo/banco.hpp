@@ -158,7 +158,7 @@
   // Testado!
   class cSignificado {
     // Keep the compiled code:
-    CodeParser parser;
+    BlockStatement parser;
 
     // Used for str()
     std::string raw_code;

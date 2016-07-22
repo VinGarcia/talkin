@@ -1,9 +1,12 @@
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#include <stdexcept>
+#include <exception>
 
 #include "ambiente.hpp"
 #include "shunting-yard.h" // For Function class
+#include "shunting-yard-exceptions.h" // For msg_exception class
 
 using namespace std;
 
@@ -28,7 +31,7 @@ struct Startup_talkin {
   // This happens before main() gets executed.
   Startup_talkin() {
     // Add talkin function to global scope:
-    Scope::default_global()["talkin"] = Function(&talkin, 1, args);
+    Scope::default_global()["talkin"] = CppFunction(&talkin, 1, args);
   }
 
   const char* args[1] = {"text"};
@@ -81,18 +84,27 @@ void readVocab(ifstream& file)
 // Retorna true se o contexto é válido, e false caso contrário.
 void interface()
 {
+  uint pos;
   string line;
   
-  cout << "Talkin 0.9 by Vinícius Garcia" << endl;
+  cout << "Talkin v0.9a by Vinícius Garcia" << endl;
   
-  while(1)
-  {
+  while(1) {
     getline(cin, line);
-    if(line==string("exit")) break;
+    if (line == "exit") break;
+
+    // Skip blank lines:
+    pos = 0;
+    while (isblank(line[pos])) ++pos;
+    if (line[pos] == '\0') continue;
     
-    try{
-    banco::execInst(line);
-    }catch(const char* c){ cout << string("erro: ") + c << endl; }
+    try {
+      banco::execInst(line);
+    } catch(const char* c) {
+      cout << string("erro: ") + c << endl;
+    } catch(const std::exception& e) {
+      std::cout << e.what() << std::endl;
+    }
   }
 }
 

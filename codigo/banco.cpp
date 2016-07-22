@@ -401,25 +401,9 @@ bool cRotulo::match(string str, uint pos)
   void cSignificado::compile(string code, uint& pos) {
     raw_code = code.substr(pos);
     const char* p_pos = code.c_str() + pos;
-    bool bracket;
-
-    // Find the start of the code block:
-    while (*p_pos && *p_pos != '{') ++p_pos;
-
-    bracket = (*p_pos == '{');
-    if (bracket) ++p_pos;
 
     parser.compile(p_pos, &p_pos);
     pos += p_pos-code.c_str();
-
-    // Skip the '}' character:
-    if (bracket) {
-      if (*p_pos != '}') {
-        throw "cSignificado::compile: Expected '}' on end of code block!";
-      } else {
-        ++pos;
-      }
-    }
   }
 
   void cSignificado::exec(const Scope& scope) {
