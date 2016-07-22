@@ -10,10 +10,8 @@
 
 using namespace std;
 
-void inicializa_banco()
-{
+void inicializa_banco() {
   using namespace pMatch;
-
   
   // Instruções básicas do sistema:
   //banco::instrucoes[0][3]= cInst("anything: [!-~ \n\t]*",3);
@@ -43,38 +41,39 @@ struct Startup_talkin {
   }
 } startup_talkin;
 
-void readVocab(ifstream& file)
-{
+void readVocab(ifstream& file) {
   bool reading=false;
   string line;
   string inst;
   cInst* aux;
   
   try {
-    while(getline(file,line))
-    {
-      if(!reading && line != string("")) reading = true;
-      if(reading) inst += " " + line;
-      if(line==string(""))
-      {
-        try{
+    while (getline(file,line)) {
+      if (!reading && line != string("")) reading = true;
+      if (reading) inst += " " + line;
+      if (line==string("")) {
+        try {
           aux = banco::addInst(inst);
-        }catch(const char* c)
-        {throw std::make_pair(c,line);}
+        } catch (const char* c) {
+          throw std::make_pair(c,line);
+        }
         cout << "inst: " << aux->str();
         cout << endl << endl;
         inst = string("");
       }
-    }
-    if(inst != string(""))
-      try{
+    } if (inst != string("")) {
+      try {
         aux = banco::addInst(inst);
-      }catch(const char* c)
-      {throw std::make_pair(c,line);}
+      } catch (const char* c) {
+        throw std::make_pair(c,line);
+      } catch (const exception& e) {
+        throw std::make_pair(e.what(), line);
+      }
+    }
     cout << "inst: " << aux->str();
     cout << endl << endl;
   }
-  catch(std::pair<const char*,std::string> c) {
+  catch (std::pair<const char*,std::string> c) {
     cout << c.first << endl;
     cout << "line: " << c.second << endl;
     throw "Erro no código do arquivo vocabulario.talk";
@@ -82,14 +81,13 @@ void readVocab(ifstream& file)
 }
 
 // Retorna true se o contexto é válido, e false caso contrário.
-void interface()
-{
+void interface() {
   uint pos;
   string line;
   
   cout << "Talkin v0.9a by Vinícius Garcia" << endl;
   
-  while(1) {
+  while (true) {
     getline(cin, line);
     if (line == "exit") break;
 
@@ -100,9 +98,9 @@ void interface()
     
     try {
       banco::execInst(line);
-    } catch(const char* c) {
+    } catch (const char* c) {
       cout << string("erro: ") + c << endl;
-    } catch(const std::exception& e) {
+    } catch (const std::exception& e) {
       std::cout << e.what() << std::endl;
     }
   }
